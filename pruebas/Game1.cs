@@ -15,7 +15,8 @@ namespace MarioPhysics
         private List<Enemy> enemies;
         private Texture2D whiteTexture;
         private Camera camera;
-
+        private double timeSinceLastSpawn = 0;
+        private double spawnInterval = 3;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -52,6 +53,14 @@ namespace MarioPhysics
 
         protected override void Update(GameTime gameTime)
         {
+            timeSinceLastSpawn += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (timeSinceLastSpawn >= spawnInterval)
+            {
+                SpawnEnemy();  
+                timeSinceLastSpawn = 0;  
+            }
+
             KeyboardState keyboard = Keyboard.GetState();
             mario.Update(gameTime, keyboard);
             mario.CheckCollisions(platforms);
@@ -60,7 +69,12 @@ namespace MarioPhysics
 
             base.Update(gameTime);
         }
-
+        public void SpawnEnemy()
+        {
+            Random rand = new Random();
+            Vector2 spawnPosition = new Vector2(rand.Next(50, 750), rand.Next(50, 350));
+            enemies.Add(new Enemy(spawnPosition));
+        }
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
@@ -100,14 +114,15 @@ namespace MarioPhysics
             Position = position;
         }
 
+
         public void Update(GameTime gameTime, KeyboardState keyboard)
         {
             float acceleration = 0.15f;  
             float deceleration = 0.1f;   
             float maxSpeed = 6f;         
             float walkSpeed = 3f;        
-
             float targetSpeed = keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
+
 
             if (keyboard.IsKeyDown(Keys.Left))
             {
