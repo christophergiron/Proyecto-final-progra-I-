@@ -11,5 +11,5 @@ bin/
 [Bb]in/
 [Oo]bj/
 
-pruebas/obj/
-pruebas/bin/
+/pruebas/obj/
+/pruebas/bin/
