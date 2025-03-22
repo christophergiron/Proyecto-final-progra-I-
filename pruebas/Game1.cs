@@ -28,7 +28,7 @@ namespace MarioPhysics
             mario = new Mario(new Vector2(100, 300));
             platforms = new List<Rectangle>
             {
-                new Rectangle(50, 400, 600, 20),
+                new Rectangle(50, 400, 800, 20),
                 new Rectangle(300, 300, 200, 20),
                 new Rectangle(250, 200, 20, 40),
                 new Rectangle(100, 100, 20, 40)
@@ -107,7 +107,7 @@ namespace MarioPhysics
             float maxSpeed = 6f;         
             float walkSpeed = 3f;        
 
-            float targetSpeed = keyboard.IsKeyDown(Keys.LeftShift) ? maxSpeed : walkSpeed;
+            float targetSpeed = keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
 
             if (keyboard.IsKeyDown(Keys.Left))
             {
@@ -136,7 +136,7 @@ namespace MarioPhysics
             if (!isOnGround)
                 Velocity.Y += gravity;
 
-            if (keyboard.IsKeyDown(Keys.Space) && isOnGround)
+            if (keyboard.IsKeyDown(Keys.S) && isOnGround)
             {
                 Velocity.Y = jumpForce;
                 isOnGround = false;
