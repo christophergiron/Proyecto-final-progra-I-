@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\pipeline-references\MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -78,4 +79,7 @@
 
 #begin SoundFX/Warp.wav
 /copy:SoundFX/Warp.wav
+
+#begin Stages/Levels/World_1/Test.tmx
+/copy:Stages/Levels/World_1/Test.tmx
 

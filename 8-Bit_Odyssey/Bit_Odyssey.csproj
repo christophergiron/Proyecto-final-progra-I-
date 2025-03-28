@@ -11,11 +11,15 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
+    <PropertyGroup>
+    <MonoGameExtendedPipelineReferencePath>$(MSBuildThisFileDirectory)pipeline-references</MonoGameExtendedPipelineReferencePath>
+  </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Content\bin\Windows\Content\" />
+      <Folder Include="Content\bin\Windows\Content\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Extended" Version="4.0.4" />
+    <PackageReference Include="MonoGame.Extended" Version="4.0.0" />
+    <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="4.0.0" />
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.2.1105" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.2.1105" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
