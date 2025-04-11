@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
+
 namespace JumpMan
 {
 
@@ -19,6 +20,8 @@ namespace JumpMan
         private Camera camera;
         private double timeSinceLastSpawn = 0;
         private double spawnInterval = 3;
+        private Music musicManager;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -41,7 +44,9 @@ namespace JumpMan
                 new Enemy(new Vector2(250, 380))
             };
 
-            camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+           camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+
+            musicManager = new Music();
 
             base.Initialize();
         }
@@ -51,6 +56,9 @@ namespace JumpMan
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
+
+            musicManager.Load(Content);
+            musicManager.PlayMusic();
         }
 
         protected override void Update(GameTime gameTime)

@@ -54,7 +54,10 @@
 /copy:SoundFX/Item.wav
 
 #begin SoundFX/Jump.wav
-/copy:SoundFX/Jump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Jump.wav
 
 #begin SoundFX/Kick.wav
 /copy:SoundFX/Kick.wav
@@ -79,6 +82,12 @@
 
 #begin SoundFX/Warp.wav
 /copy:SoundFX/Warp.wav
+
+#begin Music/Overworld.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Overworld.ogg
 
 #begin Stages/Levels/World_1/Test.tmx
 /copy:Stages/Levels/World_1/Test.tmx
