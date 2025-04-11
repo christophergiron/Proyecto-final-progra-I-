@@ -56,9 +56,8 @@ namespace JumpMan
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
-
-            musicManager.Load(Content);
-            musicManager.PlayMusic();
+            Music.Load(Content);
+            Music.PlayMusic();
         }
 
         protected override void Update(GameTime gameTime)

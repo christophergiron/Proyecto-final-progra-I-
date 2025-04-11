@@ -66,7 +66,7 @@ namespace Bit_Odyssey.Scripts{
             {
                 Velocity.Y = jumpForce;
                 isOnGround = false;
-                //Music.PlayJumpFX();
+                Music.PlayJumpFX();
             }
 
             Position += Velocity;
@@ -74,6 +74,7 @@ namespace Bit_Odyssey.Scripts{
             if (Position.Y > fallLimit)
             {
                 Position = new Vector2(100, 300);
+                Music.PlayDieFX();
             }
         }
 
@@ -129,6 +130,7 @@ namespace Bit_Odyssey.Scripts{
                     {
                         enemies.RemoveAt(i);
                         Velocity.Y = jumpForce / 2;
+                        Music.PlaySquishFX();
                     }
                     else
                     {

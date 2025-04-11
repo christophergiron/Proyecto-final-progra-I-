@@ -12,23 +12,35 @@ namespace Bit_Odyssey.Scripts
 {
     internal class Music
     {
-        private Song runningAbout;
-        private SoundEffect fxJump;
-        public void Load(ContentManager content)
+        private static Song runningAbout;
+        private static SoundEffect fxJump;
+        private static SoundEffect fxSquish;
+        private static SoundEffect fxDie;
+        public static void Load(ContentManager content)
         {
             runningAbout = content.Load<Song>("Music/Overworld");
             fxJump = content.Load<SoundEffect>("SoundFX/Jump");
+            fxSquish = content.Load<SoundEffect>("SoundFX/Squish");
+            fxDie = content.Load<SoundEffect>("SoundFX/Die");
         }
 
-        public void PlayMusic()
+        public static void PlayMusic()
         {
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(runningAbout);
         }
 
-        public void PlayJumpFX()
+        public static void PlayJumpFX()
         {
             fxJump.Play();
+        }
+        public static void PlaySquishFX()
+        {
+            fxSquish.Play();
+        }
+        public static void PlayDieFX()
+        {
+            fxDie.Play();
         }
     }
 }
