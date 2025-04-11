@@ -18,7 +18,6 @@ namespace Bit_Odyssey.Scripts{
         private bool isOnGround;
         private float fallLimit = 600;
         public Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
-        public event Action OnJump;
         public Player(Vector2 position)
         {
             Position = position;
@@ -65,7 +64,6 @@ namespace Bit_Odyssey.Scripts{
             {
                 Velocity.Y = jumpForce;
                 isOnGround = false;
-                OnJump?.Invoke();
             }
 
             Position += Velocity;
