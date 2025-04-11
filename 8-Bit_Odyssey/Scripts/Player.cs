@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Audio;
+using System.Reflection.Metadata;
 
 namespace Bit_Odyssey.Scripts{
     public class Player
@@ -64,6 +66,7 @@ namespace Bit_Odyssey.Scripts{
             {
                 Velocity.Y = jumpForce;
                 isOnGround = false;
+                //Music.PlayJumpFX();
             }
 
             Position += Velocity;
