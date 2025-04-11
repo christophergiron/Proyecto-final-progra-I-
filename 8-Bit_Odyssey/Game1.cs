@@ -41,7 +41,7 @@ namespace JumpMan
             };
             enemies = new List<Enemy>
             {
-                new Enemy(new Vector2(250, 380))
+                new Enemy(new Vector2(280, 369))
             };
 
            camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -63,13 +63,6 @@ namespace JumpMan
 
         protected override void Update(GameTime gameTime)
         {
-            timeSinceLastSpawn += gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (timeSinceLastSpawn >= spawnInterval)
-            {
-                SpawnEnemy();
-                timeSinceLastSpawn = 0;
-            }
 
             KeyboardState keyboard = Keyboard.GetState();
             JumpMan.Update(gameTime, keyboard);
@@ -78,12 +71,6 @@ namespace JumpMan
             camera.Follow(JumpMan);
 
             base.Update(gameTime);
-        }
-        public void SpawnEnemy()
-        {
-            Random rand = new Random();
-            Vector2 spawnPosition = new Vector2(rand.Next(50, 750), rand.Next(50, 350));
-            enemies.Add(new Enemy(spawnPosition));
         }
         protected override void Draw(GameTime gameTime)
         {
