@@ -10,6 +10,7 @@ bld/
 bin/
 [Bb]in/
 [Oo]bj/
+*.tmp
 
 /pruebas/obj/
 /pruebas/bin/
