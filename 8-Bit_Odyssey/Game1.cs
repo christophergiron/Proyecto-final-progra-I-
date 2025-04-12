@@ -18,8 +18,6 @@ namespace JumpMan
         private List<Enemy> enemies;
         private Texture2D whiteTexture;
         private Camera camera;
-        private double timeSinceLastSpawn = 0;
-        private double spawnInterval = 3;
         private Music musicManager;
 
         public Game1()
@@ -31,6 +29,7 @@ namespace JumpMan
 
         protected override void Initialize()
         {
+            RegenerarEnemigos();
             JumpMan = new Player(new Vector2(100, 300));
             platforms = new List<Rectangle>
             {
@@ -39,16 +38,20 @@ namespace JumpMan
                 new Rectangle(250, 200, 20, 40),
                 new Rectangle(100, 100, 20, 40)
             };
-            enemies = new List<Enemy>
-            {
-                new Enemy(new Vector2(280, 369))
-            };
+            JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
 
-           camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
 
             musicManager = new Music();
 
             base.Initialize();
+        }
+        public void RegenerarEnemigos()
+        {
+                enemies = new List<Enemy>
+            {
+                new Enemy(new Vector2(280, 369))
+            };
         }
 
         protected override void LoadContent()
@@ -93,5 +96,6 @@ namespace JumpMan
             _spriteBatch.End();
             base.Draw(gameTime);
         }
+
     }
 }

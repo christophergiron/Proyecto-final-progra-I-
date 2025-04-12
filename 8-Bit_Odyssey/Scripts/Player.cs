@@ -19,6 +19,9 @@ namespace Bit_Odyssey.Scripts{
         private float jumpForce = -10f;
         private bool isOnGround;
         private float fallLimit = 600;
+        private bool isRespawning = false;
+        private double respawnTimer = 0;
+        private const double respawnDelay = 2.0;
         public Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
         public Player(Vector2 position)
         {
@@ -34,6 +37,15 @@ namespace Bit_Odyssey.Scripts{
             float walkSpeed = 3f;
             float targetSpeed = keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
 
+            if (isRespawning)
+            {
+                respawnTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+                if (respawnTimer <= 0)
+                {
+                    isRespawning = false;
+                }
+                return;
+            }
 
             if (keyboard.IsKeyDown(Keys.Left))
             {
@@ -73,8 +85,7 @@ namespace Bit_Odyssey.Scripts{
 
             if (Position.Y > fallLimit)
             {
-                Position = new Vector2(100, 300);
-                Music.PlayDieFX();
+                Die();
             }
         }
 
@@ -134,10 +145,26 @@ namespace Bit_Odyssey.Scripts{
                     }
                     else
                     {
-                        Position = new Vector2(100, 300);
+                        Die();
                     }
                 }
             }
+        }
+        private void Die()
+        {
+            Position = new Vector2(100, 369);
+            Velocity = Vector2.Zero;
+            isRespawning = true;
+            respawnTimer = respawnDelay;
+            onDeathCallback.Invoke();
+            Music.PlayDieFX();
+        }
+        private Action onDeathCallback; 
+
+        public Player(Vector2 position, Action onDeath = null)
+        {
+            Position = position;
+            onDeathCallback = onDeath;
         }
     }
 }
