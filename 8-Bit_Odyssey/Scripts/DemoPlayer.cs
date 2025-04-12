@@ -28,6 +28,8 @@ namespace Bit_Odyssey.Scripts
             jumpTriggers = new List<Vector2>
         {
             new Vector2(200, 0),
+            new Vector2(230,0),
+            new Vector2(260, 0),
             new Vector2(500, 0)
         };
         }

@@ -40,6 +40,7 @@ namespace JumpMan
             {
                 new Rectangle(50, 400, 800, 20),
                 new Rectangle(300, 300, 200, 20),
+                new Rectangle(550, 250, 200, 20),
                 new Rectangle(250, 200, 20, 40),
                 new Rectangle(100, 100, 20, 40)
             };
@@ -55,7 +56,14 @@ namespace JumpMan
         {
             enemies = new List<Enemy>
             {
-                new Enemy(new Vector2(280, 369))
+                new Enemy(new Vector2(280, 369)),
+                new Enemy(new Vector2(380, 369)),
+                new Enemy(new Vector2(560, 220)),
+                new Enemy(new Vector2(670, 220)),
+                new Enemy(new Vector2(770, 220)),
+                new Enemy(new Vector2(870, 220)),
+                new Enemy(new Vector2(970, 220)),
+                new Enemy(new Vector2(1100, 220))
             };
         }
 
