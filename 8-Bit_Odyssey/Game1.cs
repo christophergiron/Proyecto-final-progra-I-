@@ -19,6 +19,8 @@ namespace JumpMan
         private Texture2D whiteTexture;
         private Camera camera;
         private Music musicManager;
+        private DemoController demoController;
+        private DemoPlayer demoPlayer;
 
         public Game1()
         {
@@ -30,7 +32,10 @@ namespace JumpMan
         protected override void Initialize()
         {
             RegenerarEnemigos();
-            JumpMan = new Player(new Vector2(100, 300));
+            JumpMan = new Player(new Vector2(100, 369));
+            demoController = new DemoController();
+            demoPlayer = new DemoPlayer(new Vector2(100, 369));
+
             platforms = new List<Rectangle>
             {
                 new Rectangle(50, 400, 800, 20),
@@ -48,7 +53,7 @@ namespace JumpMan
         }
         public void RegenerarEnemigos()
         {
-                enemies = new List<Enemy>
+            enemies = new List<Enemy>
             {
                 new Enemy(new Vector2(280, 369))
             };
@@ -67,22 +72,44 @@ namespace JumpMan
         {
 
             KeyboardState keyboard = Keyboard.GetState();
-            JumpMan.Update(gameTime, keyboard);
-            JumpMan.CheckCollisions(platforms);
-            JumpMan.CheckEnemyCollisions(enemies);
-            camera.Follow(JumpMan);
-            Music.Update(gameTime);
+            demoController.Update(gameTime, keyboard);
+
+            if (demoController.InDemoMode)
+            {
+                demoPlayer.Update(gameTime, platforms, enemies);
+                camera.Follow(demoPlayer);
+
+            }
+            else
+            {
+                JumpMan.Update(gameTime, keyboard);
+                JumpMan.CheckCollisions(platforms);
+                JumpMan.CheckEnemyCollisions(enemies);
+                camera.Follow(JumpMan);
+
+            }
 
             base.Update(gameTime);
+            Music.Update(gameTime);
         }
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(whiteTexture,
-                new Rectangle((int)(JumpMan.Position.X - camera.Position.X), (int)JumpMan.Position.Y, 32, 32),
-                Color.Red);
+            if (demoController.InDemoMode)
+            {
+                _spriteBatch.Draw(whiteTexture,
+                    new Rectangle((int)(demoPlayer.Position.X - camera.Position.X), (int)demoPlayer.Position.Y, 32, 32),
+                    Color.LightCoral); // Diferente color para diferenciar demo
+            }
+            else
+            {
+                _spriteBatch.Draw(whiteTexture,
+                    new Rectangle((int)(JumpMan.Position.X - camera.Position.X), (int)JumpMan.Position.Y, 32, 32),
+                    Color.Red);
+            }
+
 
             foreach (var platform in platforms)
                 _spriteBatch.Draw(whiteTexture,

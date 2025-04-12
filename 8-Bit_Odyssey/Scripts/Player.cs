@@ -14,10 +14,10 @@ namespace Bit_Odyssey.Scripts{
     public class Player
     {
         public Vector2 Position;
-        private Vector2 Velocity;
+        protected Vector2 Velocity;
         private float gravity = 0.4f;
         private float jumpForce = -10f;
-        private bool isOnGround;
+        protected bool IsOnGround;
         private float fallLimit = 600;
         private bool isRespawning = false;
         private double respawnTimer = 0;
@@ -71,13 +71,13 @@ namespace Bit_Odyssey.Scripts{
                 }
             }
 
-            if (!isOnGround)
+            if (!IsOnGround)
                 Velocity.Y += gravity;
 
-            if (keyboard.IsKeyDown(Keys.S) && isOnGround)
+            if (keyboard.IsKeyDown(Keys.S) && IsOnGround)
             {
                 Velocity.Y = jumpForce;
-                isOnGround = false;
+                IsOnGround = false;
                 Music.PlayJumpFX();
             }
 
@@ -91,7 +91,7 @@ namespace Bit_Odyssey.Scripts{
 
         public void CheckCollisions(List<Rectangle> platforms)
         {
-            isOnGround = false;
+            IsOnGround = false;
             foreach (var platform in platforms)
             {
                 if (Hitbox.Intersects(platform))
@@ -103,7 +103,7 @@ namespace Bit_Odyssey.Scripts{
                         if (Velocity.Y > 0)
                         {
                             Position.Y = platform.Top - Hitbox.Height;
-                            isOnGround = true;
+                            IsOnGround = true;
                             Velocity.Y = 0;
                         }
                         else if (Velocity.Y < 0)
@@ -156,12 +156,12 @@ namespace Bit_Odyssey.Scripts{
             Velocity = Vector2.Zero;
             isRespawning = true;
             respawnTimer = respawnDelay;
-            onDeathCallback.Invoke();
+            onDeathCallback?.Invoke();
             Music.StopMusic();
             Music.PlayDieFX();
             Music.ResetMusic((float)Music.fxDie.Duration.TotalSeconds);
         }
-        private Action onDeathCallback; 
+        private Action onDeathCallback;
 
         public Player(Vector2 position, Action onDeath = null)
         {
@@ -170,3 +170,4 @@ namespace Bit_Odyssey.Scripts{
         }
     }
 }
+
