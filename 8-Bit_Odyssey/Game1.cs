@@ -39,7 +39,8 @@ namespace JumpMan
             platforms = new List<Rectangle>
             {
                 new Rectangle(50, 400, 800, 20),
-                new Rectangle(300, 300, 200, 20),
+                new Rectangle(500, 300, 200, 20),
+                new Rectangle(650, 200, 450, 20),
                 new Rectangle(250, 200, 20, 40),
                 new Rectangle(100, 100, 20, 40)
             };

@@ -27,8 +27,9 @@ namespace Bit_Odyssey.Scripts
         {
             jumpTriggers = new List<Vector2>
         {
+            new Vector2(140,0),
             new Vector2(200, 0),
-            new Vector2(500, 0)
+            new Vector2(530, 0)
         };
         }
 
@@ -98,7 +99,7 @@ namespace Bit_Odyssey.Scripts
         {
             foreach (var enemy in enemies)
             {
-                if (Math.Abs(Position.X - enemy.Position.X) < 50 && IsOnGround)
+                if (Math.Abs(Position.X - enemy.Position.X) < 40 && IsOnGround)
                 {
                     SimulateJump();
                 }
