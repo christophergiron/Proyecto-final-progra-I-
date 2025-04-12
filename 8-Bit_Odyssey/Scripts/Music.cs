@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework;
 
 
 namespace Bit_Odyssey.Scripts
@@ -15,21 +16,30 @@ namespace Bit_Odyssey.Scripts
         private static Song runningAbout;
         private static SoundEffect fxJump;
         private static SoundEffect fxSquish;
-        private static SoundEffect fxDie;
+        private static Song underGround;
+        public static SoundEffect fxDie;
+        private static bool esperaReset = false;
+        private static float resetMusic = 0f;
+        
         public static void Load(ContentManager content)
         {
             runningAbout = content.Load<Song>("Music/Overworld");
             fxJump = content.Load<SoundEffect>("SoundFX/Jump");
             fxSquish = content.Load<SoundEffect>("SoundFX/Squish");
             fxDie = content.Load<SoundEffect>("SoundFX/Die");
+            underGround = content.Load<Song>("Music/Underground");
         }
 
-        public static void PlayMusic()
+        public static void PlayMusicOverWorld()
         {
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(runningAbout);
         }
-
+        public static void PlayMusicUnderGroud()
+        {
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(underGround);
+        }
         public static void PlayJumpFX()
         {
             fxJump.Play();
@@ -41,6 +51,29 @@ namespace Bit_Odyssey.Scripts
         public static void PlayDieFX()
         {
             fxDie.Play();
+        }
+        public static void StopMusic()
+        {
+            MediaPlayer.Stop();
+        }
+
+        public static void ResetMusic(float deathFXDuration)
+        {
+            esperaReset = true;
+            resetMusic = deathFXDuration;
+        }
+
+        public static void Update(GameTime gameTime)
+        {
+            if (esperaReset)
+            {
+                resetMusic -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (resetMusic <= 0)
+                {
+                    PlayMusicOverWorld();
+                    esperaReset = false;
+                }
+            }
         }
     }
 }

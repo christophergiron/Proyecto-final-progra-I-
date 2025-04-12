@@ -14,11 +14,23 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Music/Clear.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Clear.ogg
+
 #begin Music/Overworld.ogg
 /importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/Overworld.ogg
+
+#begin Music/Underground.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Underground.ogg
 
 #begin SoundFX/1up.wav
 /copy:SoundFX/1up.wav

@@ -157,7 +157,9 @@ namespace Bit_Odyssey.Scripts{
             isRespawning = true;
             respawnTimer = respawnDelay;
             onDeathCallback.Invoke();
+            Music.StopMusic();
             Music.PlayDieFX();
+            Music.ResetMusic((float)Music.fxDie.Duration.TotalSeconds);
         }
         private Action onDeathCallback; 
 

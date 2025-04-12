@@ -60,7 +60,7 @@ namespace JumpMan
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
             Music.Load(Content);
-            Music.PlayMusic();
+            Music.PlayMusicOverWorld();
         }
 
         protected override void Update(GameTime gameTime)
@@ -71,6 +71,7 @@ namespace JumpMan
             JumpMan.CheckCollisions(platforms);
             JumpMan.CheckEnemyCollisions(enemies);
             camera.Follow(JumpMan);
+            Music.Update(gameTime);
 
             base.Update(gameTime);
         }
