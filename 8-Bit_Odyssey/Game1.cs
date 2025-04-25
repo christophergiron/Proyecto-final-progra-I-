@@ -1,9 +1,16 @@
 ﻿using Bit_Odyssey.Scripts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Tiled.Renderers;
+using MonoGame.Extended.Tiled;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
+using Microsoft.VisualBasic.ApplicationServices;
+using MonoGame.Extended.ECS;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace JumpMan
@@ -19,6 +26,8 @@ namespace JumpMan
         private Texture2D whiteTexture;
         private Camera camera;
         private Music musicManager;
+        private static TiledMap _tiledMap;
+        private static TiledMapRenderer _tiledMapRenderer;
         private DemoController demoController;
         private DemoPlayer demoPlayer;
 
@@ -71,6 +80,8 @@ namespace JumpMan
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
+            _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test");
+            _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
             whiteTexture.SetData(new[] { Color.White });
             Music.Load(Content);
             Music.PlayMusicOverWorld();
@@ -104,6 +115,8 @@ namespace JumpMan
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
             _spriteBatch.Begin();
+
+            _tiledMapRenderer.Draw();
 
             if (demoController.InDemoMode)
             {
