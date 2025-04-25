@@ -88,7 +88,6 @@ namespace Bit_Odyssey.Scripts{
                 Die();
             }
         }
-
         public void CheckCollisions(List<Rectangle> platforms)
         {
             IsOnGround = false;
@@ -123,6 +122,44 @@ namespace Bit_Odyssey.Scripts{
                         {
                             Position.X = platform.Right;
                             Velocity.X = 0;
+                        }
+                        Velocity.X = 0;
+                    }
+                }
+            }
+        }
+        public void CheckTileCollisions(List<Rectangle> tileColliders)
+        {
+            IsOnGround = false;
+            foreach (var tile in tileColliders)
+            {
+                if (Hitbox.Intersects(tile))
+                {
+                    Rectangle intersection = Rectangle.Intersect(Hitbox, tile);
+
+                    if (intersection.Height < intersection.Width)
+                    {
+                        if (Velocity.Y > 0)
+                        {
+                            Position.Y = tile.Top - Hitbox.Height;
+                            IsOnGround = true;
+                            Velocity.Y = 0;
+                        }
+                        else if (Velocity.Y < 0)
+                        {
+                            Position.Y = tile.Bottom;
+                            Velocity.Y = 0;
+                        }
+                    }
+                    else
+                    {
+                        if (Velocity.X > 0)
+                        {
+                            Position.X = tile.Left - Hitbox.Width;
+                        }
+                        else if (Velocity.X < 0)
+                        {
+                            Position.X = tile.Right;
                         }
                         Velocity.X = 0;
                     }

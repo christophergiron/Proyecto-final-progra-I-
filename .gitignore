@@ -11,6 +11,7 @@ bin/
 [Bb]in/
 [Oo]bj/
 *.tmp
+*.tmd
 
 /pruebas/obj/
 /pruebas/bin/

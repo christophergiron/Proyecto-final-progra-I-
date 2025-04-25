@@ -1,9 +1,16 @@
 ﻿using Bit_Odyssey.Scripts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Tiled.Renderers;
+using MonoGame.Extended.Tiled;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
+using Microsoft.VisualBasic.ApplicationServices;
+using MonoGame.Extended.ECS;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace JumpMan
@@ -14,11 +21,14 @@ namespace JumpMan
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Player JumpMan;
-        private List<Rectangle> platforms;
+        //private List<Rectangle> platforms;
         private List<Enemy> enemies;
         private Texture2D whiteTexture;
         private Camera camera;
+        private List<Rectangle> tileColliders;
         private Music musicManager;
+        private static TiledMap _tiledMap;
+        private static TiledMapRenderer _tiledMapRenderer;
         private DemoController demoController;
         private DemoPlayer demoPlayer;
 
@@ -36,14 +46,15 @@ namespace JumpMan
             demoController = new DemoController();
             demoPlayer = new DemoPlayer(new Vector2(100, 369));
 
-            platforms = new List<Rectangle>
-            {
-                new Rectangle(50, 400, 800, 20),
-                new Rectangle(300, 300, 200, 20),
-                new Rectangle(550, 250, 200, 20),
-                new Rectangle(250, 200, 20, 40),
-                new Rectangle(100, 100, 20, 40)
-            };
+            //platforms = new List<Rectangle>
+            //{
+            //    new Rectangle(50, 400, 800, 20),
+            //    new Rectangle(300, 300, 200, 20),
+            //    new Rectangle(550, 250, 200, 20),
+            //    new Rectangle(250, 200, 20, 40),
+            //    new Rectangle(100, 100, 20, 40)
+            //};
+
             JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
 
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -58,12 +69,6 @@ namespace JumpMan
             {
                 new Enemy(new Vector2(280, 369)),
                 new Enemy(new Vector2(380, 369)),
-                new Enemy(new Vector2(560, 220)),
-                new Enemy(new Vector2(670, 220)),
-                new Enemy(new Vector2(770, 220)),
-                new Enemy(new Vector2(870, 220)),
-                new Enemy(new Vector2(970, 220)),
-                new Enemy(new Vector2(1100, 220))
             };
         }
 
@@ -71,6 +76,27 @@ namespace JumpMan
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
+            _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
+            _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
+            tileColliders = new List<Rectangle>();
+            var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
+
+            for (int y = 0; y < collisionLayer.Height; y++)
+            {
+                for (int x = 0; x < collisionLayer.Width; x++)
+                {
+                    var tile = collisionLayer.GetTile((ushort)x, (ushort)y);
+                    if (!tile.IsBlank)
+                    {
+                        tileColliders.Add(new Rectangle(
+                            x * _tiledMap.TileWidth,
+                            y * _tiledMap.TileHeight,
+                            _tiledMap.TileWidth,
+                            _tiledMap.TileHeight
+                        ));
+                    }
+                }
+            }
             whiteTexture.SetData(new[] { Color.White });
             Music.Load(Content);
             Music.PlayMusicOverWorld();
@@ -82,20 +108,21 @@ namespace JumpMan
             KeyboardState keyboard = Keyboard.GetState();
             demoController.Update(gameTime, keyboard);
 
-            if (demoController.InDemoMode)
-            {
-                demoPlayer.Update(gameTime, platforms, enemies);
-                camera.Follow(demoPlayer);
+            //if (demoController.InDemoMode)
+            //{
+            //    demoPlayer.Update(gameTime, platforms, enemies);
+            //    camera.Follow(demoPlayer);
 
-            }
-            else
-            {
+            //}
+            //else
+            //{
                 JumpMan.Update(gameTime, keyboard);
-                JumpMan.CheckCollisions(platforms);
+                JumpMan.CheckTileCollisions(tileColliders);
                 JumpMan.CheckEnemyCollisions(enemies);
                 camera.Follow(JumpMan);
 
-            }
+            //}
+            _tiledMapRenderer.Update(gameTime);
 
             base.Update(gameTime);
             Music.Update(gameTime);
@@ -104,6 +131,8 @@ namespace JumpMan
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
             _spriteBatch.Begin();
+
+            _tiledMapRenderer.Draw(camera.GetViewMatrix());
 
             if (demoController.InDemoMode)
             {
@@ -118,11 +147,10 @@ namespace JumpMan
                     Color.Red);
             }
 
-
-            foreach (var platform in platforms)
-                _spriteBatch.Draw(whiteTexture,
-                    new Rectangle(platform.X - (int)camera.Position.X, platform.Y, platform.Width, platform.Height),
-                    Color.Gray);
+            //foreach (var platform in platforms)
+            //    _spriteBatch.Draw(whiteTexture,
+            //        new Rectangle(platform.X - (int)camera.Position.X, platform.Y, platform.Width, platform.Height),
+            //        Color.Gray);
 
             foreach (var enemy in enemies)
                 _spriteBatch.Draw(whiteTexture,

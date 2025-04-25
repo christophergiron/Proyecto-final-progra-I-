@@ -30,5 +30,10 @@ namespace Bit_Odyssey.Scripts
 
             Position = new Vector2(newX, Position.Y);
         }
+
+        public Matrix GetViewMatrix()
+        {
+            return Matrix.CreateTranslation(new Vector3(-Position.X, -Position.Y, 0));
+        }
     }
 }

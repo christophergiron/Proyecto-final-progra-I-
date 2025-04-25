@@ -108,5 +108,46 @@
 /copy:SoundFX/Warp.wav
 
 #begin Stages/Levels/World_1/Test.tmx
-/copy:Stages/Levels/World_1/Test.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:Stages/Levels/World_1/Test.tmx
+
+#begin Stages/Levels/World_1/Test32x.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:Stages/Levels/World_1/Test32x.tmx
+
+#begin Stages/Tilesets/TileSet Day 32x.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Stages/Tilesets/TileSet Day 32x.png
+
+#begin Stages/Tilesets/TileSet Day 32x.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:Stages/Tilesets/TileSet Day 32x.tsx
+
+#begin Stages/Tilesets/TileSet Day.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Stages/Tilesets/TileSet Day.png
+
+#begin Stages/Tilesets/TileSet Day.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:Stages/Tilesets/TileSet Day.tsx
 
