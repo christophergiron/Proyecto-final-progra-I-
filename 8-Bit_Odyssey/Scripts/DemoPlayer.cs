@@ -70,7 +70,7 @@ namespace Bit_Odyssey.Scripts
             }
 
             base.Update(gameTime, new KeyboardState());
-            CheckCollisions(platforms);
+            CheckTileCollisions(platforms);
             CheckEnemyCollisions(enemies);
         }
 

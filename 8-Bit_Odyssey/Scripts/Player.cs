@@ -88,47 +88,7 @@ namespace Bit_Odyssey.Scripts{
                 Die();
             }
         }
-        public void CheckCollisions(List<Rectangle> platforms)
-        {
-            IsOnGround = false;
-            foreach (var platform in platforms)
-            {
-                if (Hitbox.Intersects(platform))
-                {
-                    Rectangle intersection = Rectangle.Intersect(Hitbox, platform);
-
-                    if (intersection.Height < intersection.Width)
-                    {
-                        if (Velocity.Y > 0)
-                        {
-                            Position.Y = platform.Top - Hitbox.Height;
-                            IsOnGround = true;
-                            Velocity.Y = 0;
-                        }
-                        else if (Velocity.Y < 0)
-                        {
-                            Position.Y = platform.Bottom;
-                            Velocity.Y = 0;
-                        }
-                    }
-                    else
-                    {
-                        if (Velocity.X > 0)
-                        {
-                            Position.X = platform.Left - Hitbox.Width;
-                            Velocity.X = 0;
-                        }
-                        else if (Velocity.X < 0)
-                        {
-                            Position.X = platform.Right;
-                            Velocity.X = 0;
-                        }
-                        Velocity.X = 0;
-                    }
-                }
-            }
-        }
-        public void CheckTileCollisions(List<Rectangle> tileColliders)
+        public virtual void CheckTileCollisions(List<Rectangle> tileColliders)
         {
             IsOnGround = false;
             foreach (var tile in tileColliders)
