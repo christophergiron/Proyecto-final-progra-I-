@@ -15,7 +15,6 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace JumpMan
 {
-
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
@@ -31,6 +30,8 @@ namespace JumpMan
         private DemoController demoController;
         private DemoPlayer demoPlayer;
 
+        private bool wasInDemoMode = false;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -41,11 +42,9 @@ namespace JumpMan
         protected override void Initialize()
         {
             RegenerarEnemigos();
-            JumpMan = new Player(new Vector2(100, 369));
+            JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
             demoController = new DemoController();
             demoPlayer = new DemoPlayer(new Vector2(100, 369));
-
-            JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
 
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
 
@@ -53,13 +52,14 @@ namespace JumpMan
 
             base.Initialize();
         }
+
         public void RegenerarEnemigos()
         {
             enemies = new List<Enemy>
-            {
-                new Enemy(new Vector2(280, 369)),
-                new Enemy(new Vector2(380, 369)),
-            };
+        {
+            new Goomba(new Vector2(280, 369)),
+            new Koopa(new Vector2(380, 369)),
+        };
         }
 
         protected override void LoadContent()
@@ -94,29 +94,72 @@ namespace JumpMan
 
         protected override void Update(GameTime gameTime)
         {
-
             KeyboardState keyboard = Keyboard.GetState();
             demoController.Update(gameTime, keyboard);
 
             if (demoController.InDemoMode)
             {
+                if (!wasInDemoMode)
+                {
+                    demoPlayer = new DemoPlayer(new Vector2(100, 369));
+                    wasInDemoMode = true;
+                }
+
                 demoPlayer.Update(gameTime, tileColliders, enemies);
                 camera.Follow(demoPlayer);
-
             }
             else
             {
+                if (wasInDemoMode)
+                {
+                    JumpMan.Position = demoPlayer.Position;
+                    JumpMan.Velocity = demoPlayer.Velocity;
+
+                    typeof(Player).GetField("IsOnGround", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                        ?.SetValue(JumpMan, typeof(DemoPlayer).GetField("IsOnGround", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(demoPlayer));
+
+                    demoController.Reset();
+                    wasInDemoMode = false;
+                }
+
                 JumpMan.Update(gameTime, keyboard);
                 JumpMan.CheckTileCollisions(tileColliders);
                 JumpMan.CheckEnemyCollisions(enemies);
                 camera.Follow(JumpMan);
+            }
 
+            foreach (var enemy in enemies)
+            {
+                enemy.Update(gameTime, tileColliders); 
+            }
+
+            for (int i = enemies.Count - 1; i >= 0; i--)
+            {
+                var koopa = enemies[i] as Koopa;
+                if (koopa != null && koopa.IsInShell && koopa.IsMovingShell)
+                {
+                    for (int j = enemies.Count - 1; j >= 0; j--)
+                    {
+                        if (i == j) continue;
+                        var other = enemies[j];
+
+                        if (koopa.Hitbox.Intersects(other.Hitbox))
+                        {
+                            // Si es un Goomba o un Koopa que no está en caparazón
+                            if (other is Goomba || (other is Koopa k && !k.IsInShell))
+                            {
+                                enemies.RemoveAt(j);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             _tiledMapRenderer.Update(gameTime);
-
             base.Update(gameTime);
             Music.Update(gameTime);
         }
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
@@ -128,7 +171,7 @@ namespace JumpMan
             {
                 _spriteBatch.Draw(whiteTexture,
                     new Rectangle((int)(demoPlayer.Position.X - camera.Position.X), (int)demoPlayer.Position.Y, 32, 32),
-                    Color.LightCoral); // Diferente color para diferenciar demo
+                    Color.LightCoral);
             }
             else
             {
@@ -136,14 +179,24 @@ namespace JumpMan
                     new Rectangle((int)(JumpMan.Position.X - camera.Position.X), (int)JumpMan.Position.Y, 32, 32),
                     Color.Red);
             }
+
             foreach (var enemy in enemies)
+            {
+                Color color = Color.Green; // default
+                if (enemy is Goomba) color = Color.SaddleBrown;
+                else if (enemy is Koopa koopa)
+                {
+                    color = koopa.IsInShell ? Color.Cyan : Color.ForestGreen;
+                }
+
                 _spriteBatch.Draw(whiteTexture,
                     new Rectangle((int)(enemy.Position.X - camera.Position.X), (int)enemy.Position.Y, 32, 32),
-                    Color.Green);
+                    color);
+            }
+
 
             _spriteBatch.End();
             base.Draw(gameTime);
         }
-
     }
 }

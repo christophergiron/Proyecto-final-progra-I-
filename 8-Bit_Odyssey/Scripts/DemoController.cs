@@ -12,7 +12,7 @@ namespace Bit_Odyssey.Scripts
     internal class DemoController
     {
         private double idleTime;
-        private double demoThreshold = 5; // segundos sin input antes de entrar a demo
+        private double demoThreshold = 5; 
         public bool InDemoMode { get; private set; }
 
         public void Update(GameTime gameTime, KeyboardState keyboard)

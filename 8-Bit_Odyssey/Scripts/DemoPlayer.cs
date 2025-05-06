@@ -19,26 +19,27 @@ namespace Bit_Odyssey.Scripts
         private double demoRespawnTimer = 0;
         private const double demoRespawnDelay = 2.0;
 
-        // Nueva lista para guardar los movimientos y saltos
         private List<Action> actionHistory = new List<Action>();
         private int actionIndex = 0;
+        private float lastRecordedX = 0;
 
         public DemoPlayer(Vector2 position) : base(position)
         {
             jumpTriggers = new List<Vector2>
         {
             new Vector2(200, 0),
-            new Vector2(230,0),
+            new Vector2(230, 0),
             new Vector2(260, 0),
             new Vector2(500, 0)
         };
+
+            lastRecordedX = position.X;
         }
 
         public void Update(GameTime gameTime, List<Rectangle> platforms, List<Enemy> enemies)
         {
             if (Position.Y > 600 && !isInDemoRespawn)
             {
-                // Detecta caída como "muerte"
                 isInDemoRespawn = true;
                 demoRespawnTimer = demoRespawnDelay;
                 return;
@@ -55,15 +56,12 @@ namespace Bit_Odyssey.Scripts
                 return;
             }
 
-            // Si estamos en respawn, ejecutamos las acciones anteriores
             if (actionIndex < actionHistory.Count)
             {
-                actionHistory[actionIndex].Invoke();
-                actionIndex++;
+                PlayBackDemo();
             }
             else
             {
-                // Si se acaba el historial, simulamos el movimiento como antes
                 SimulateRightMovement();
                 HandleJumpTriggers();
                 HandleEnemyJump(enemies);
@@ -79,8 +77,11 @@ namespace Bit_Odyssey.Scripts
             Velocity.X += 0.15f;
             if (Velocity.X > 6f) Velocity.X = 6f;
 
-            // Guardamos el movimiento en el historial
-            actionHistory.Add(() => Velocity.X += 0.15f);
+            if (Math.Abs(Position.X - lastRecordedX) > 5)
+            {
+                actionHistory.Add(() => Velocity.X += 0.15f);
+                lastRecordedX = Position.X;
+            }
         }
 
         private void SimulateJump()
@@ -91,7 +92,6 @@ namespace Bit_Odyssey.Scripts
                 IsOnGround = false;
                 Music.PlayJumpFX();
 
-                // Guardamos el salto en el historial
                 actionHistory.Add(() => SimulateJump());
             }
         }
@@ -100,9 +100,12 @@ namespace Bit_Odyssey.Scripts
         {
             foreach (var enemy in enemies)
             {
-                if (Math.Abs(Position.X - enemy.Position.X) < 50 && IsOnGround)
+                float distX = Math.Abs(Position.X - enemy.Position.X);
+                float distY = Math.Abs(Position.Y - enemy.Position.Y);
+                if (distX < 50 && distY < 40 && IsOnGround)
                 {
                     SimulateJump();
+                    break;
                 }
             }
         }
@@ -124,10 +127,18 @@ namespace Bit_Odyssey.Scripts
             Velocity = Vector2.Zero;
             IsOnGround = false;
             currentTriggerIndex = 0;
-
-            // Limpiamos el historial de acciones
             actionHistory.Clear();
             actionIndex = 0;
+            lastRecordedX = startPosition.X;
+        }
+
+        public void PlayBackDemo()
+        {
+            if (actionIndex < actionHistory.Count)
+            {
+                actionHistory[actionIndex].Invoke();
+                actionIndex++;
+            }
         }
     }
 }

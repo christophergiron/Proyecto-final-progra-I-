@@ -10,11 +10,12 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
 using System.Reflection.Metadata;
 
-namespace Bit_Odyssey.Scripts{
+namespace Bit_Odyssey.Scripts
+{
     public class Player
     {
         public Vector2 Position;
-        protected Vector2 Velocity;
+        public Vector2 Velocity;
         private float gravity = 0.4f;
         private float jumpForce = -10f;
         protected bool IsOnGround;
@@ -23,11 +24,14 @@ namespace Bit_Odyssey.Scripts{
         private double respawnTimer = 0;
         private const double respawnDelay = 2.0;
         public Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
-        public Player(Vector2 position)
+
+        private Action onDeathCallback;
+
+        public Player(Vector2 position, Action onDeath = null)
         {
             Position = position;
+            onDeathCallback = onDeath;
         }
-
 
         public void Update(GameTime gameTime, KeyboardState keyboard)
         {
@@ -41,9 +45,7 @@ namespace Bit_Odyssey.Scripts{
             {
                 respawnTimer -= gameTime.ElapsedGameTime.TotalSeconds;
                 if (respawnTimer <= 0)
-                {
                     isRespawning = false;
-                }
                 return;
             }
 
@@ -88,6 +90,7 @@ namespace Bit_Odyssey.Scripts{
                 Die();
             }
         }
+
         public virtual void CheckTileCollisions(List<Rectangle> tileColliders)
         {
             IsOnGround = false;
@@ -132,7 +135,11 @@ namespace Bit_Odyssey.Scripts{
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
                 Enemy enemy = enemies[i];
-                if (Hitbox.Intersects(enemy.Hitbox))
+                if (!Hitbox.Intersects(enemy.Hitbox))
+                    continue;
+
+                // Goomba
+                if (enemy is Goomba)
                 {
                     if (Velocity.Y > 0)
                     {
@@ -145,25 +152,53 @@ namespace Bit_Odyssey.Scripts{
                         Die();
                     }
                 }
+
+                // Koopa
+                else if (enemy is Koopa k)
+                {
+                    if (!k.IsInShell)
+                    {
+                        if (Velocity.Y > 0)
+                        {
+                            k.EnterShell();
+                            Velocity.Y = jumpForce / 2;
+                            Music.PlaySquishFX();
+                        }
+                        else
+                        {
+                            Die();
+                        }
+                    }
+                    else
+                    {
+                        if (!k.IsMovingShell)
+                        {
+                            // Patear desde el lado
+                            int dir = (Position.X < k.Position.X) ? 1 : -1;
+                            k.KickShell(dir);
+                            Velocity.Y = jumpForce / 2; // pequeño rebote al patear
+                        }
+                        else
+                        {
+                            // Caparazón en movimiento mata al jugador
+                            Die();
+                        }
+                    }
+                }
             }
         }
-        private void Die()
+
+        public void Die()
         {
             Position = new Vector2(100, 369);
             Velocity = Vector2.Zero;
             isRespawning = true;
             respawnTimer = respawnDelay;
+
             onDeathCallback?.Invoke();
             Music.StopMusic();
             Music.PlayDieFX();
             Music.ResetMusic((float)Music.fxDie.Duration.TotalSeconds);
-        }
-        private Action onDeathCallback;
-
-        public Player(Vector2 position, Action onDeath = null)
-        {
-            Position = position;
-            onDeathCallback = onDeath;
         }
     }
 }
