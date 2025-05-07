@@ -20,23 +20,72 @@ namespace Bit_Odyssey.Scripts
             Velocity = new Vector2(-1.0f, 0);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime, List<Rectangle> tileColliders)
         {
-            if (!IsInShell || IsMovingShell)
+            if (IsInShell && !IsMovingShell)
             {
-                base.Update(gameTime);
+                Velocity.X = 0;
+                Velocity.Y += gravity;
+                Position += Velocity;
+                CheckGround(tileColliders);
+                return;
             }
-            else
+
+            if (IsMovingShell)
             {
-                Velocity = Vector2.Zero;
+                Velocity.Y += gravity;
+                Position += Velocity;
+
+                IsOnGround = false;
+
+                foreach (var tile in tileColliders)
+                {
+                    if (Hitbox.Intersects(tile))
+                    {
+                        Rectangle intersection = Rectangle.Intersect(Hitbox, tile);
+
+                        if (intersection.Height < intersection.Width)
+                        {
+                            // Colisión horizontal: rebota
+                            if (Velocity.X > 0)
+                                Position.X = tile.Left - Hitbox.Width;
+                            else
+                                Position.X = tile.Right;
+
+                            Velocity.X *= -1;
+                        }
+                        else
+                        {
+                            // Colisión vertical
+                            if (Velocity.Y > 0)
+                            {
+                                Position.Y = tile.Top - Hitbox.Height;
+                                Velocity.Y = 0;
+                                IsOnGround = true;
+                            }
+                            else if (Velocity.Y < 0)
+                            {
+                                Position.Y = tile.Bottom;
+                                Velocity.Y = 0;
+                            }
+                        }
+                    }
+                }
+
+                return;
             }
+
+            // Koopa caminando normalmente (como Goomba)
+            base.Update(gameTime, tileColliders);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
             Texture2D pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
             pixel.SetData(new[] { Color.White });
-            spriteBatch.Draw(pixel, Hitbox, Color.Green);
+
+            Color color = IsInShell ? (IsMovingShell ? Color.Orange : Color.Blue) : Color.Green;
+            spriteBatch.Draw(pixel, Hitbox, color);
         }
 
         public void EnterShell()
@@ -48,6 +97,8 @@ namespace Bit_Odyssey.Scripts
 
         public void KickShell(int direction)
         {
+            if (!IsInShell) return;
+
             IsMovingShell = true;
             Velocity = new Vector2(5 * direction, 0);
         }
@@ -56,6 +107,32 @@ namespace Bit_Odyssey.Scripts
         {
             IsMovingShell = false;
             Velocity = Vector2.Zero;
+        }
+
+        private void CheckGround(List<Rectangle> tileColliders)
+        {
+            IsOnGround = false;
+            foreach (var tile in tileColliders)
+            {
+                if (Hitbox.Intersects(tile))
+                {
+                    Rectangle intersection = Rectangle.Intersect(Hitbox, tile);
+                    if (intersection.Height < intersection.Width)
+                    {
+                        if (Velocity.Y > 0)
+                        {
+                            Position.Y = tile.Top - Hitbox.Height;
+                            Velocity.Y = 0;
+                            IsOnGround = true;
+                        }
+                        else if (Velocity.Y < 0)
+                        {
+                            Position.Y = tile.Bottom;
+                            Velocity.Y = 0;
+                        }
+                    }
+                }
+            }
         }
     }
 }

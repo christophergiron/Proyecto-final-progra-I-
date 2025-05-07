@@ -138,7 +138,6 @@ namespace Bit_Odyssey.Scripts
                 if (!Hitbox.Intersects(enemy.Hitbox))
                     continue;
 
-                // Goomba
                 if (enemy is Goomba)
                 {
                     if (Velocity.Y > 0)
@@ -152,8 +151,6 @@ namespace Bit_Odyssey.Scripts
                         Die();
                     }
                 }
-
-                // Koopa
                 else if (enemy is Koopa k)
                 {
                     if (!k.IsInShell)
@@ -173,15 +170,31 @@ namespace Bit_Odyssey.Scripts
                     {
                         if (!k.IsMovingShell)
                         {
-                            // Patear desde el lado
-                            int dir = (Position.X < k.Position.X) ? 1 : -1;
-                            k.KickShell(dir);
-                            Velocity.Y = jumpForce / 2; // pequeño rebote al patear
+                            // Solo se puede patear desde los lados, no desde arriba
+                            if (Math.Abs(Hitbox.Center.Y - k.Hitbox.Center.Y) < 10)
+                            {
+                                int direction = (Hitbox.Center.X < k.Hitbox.Center.X) ? 1 : -1;
+                                k.KickShell(direction);
+                                Velocity.Y = jumpForce / 2;
+                            }
+                            else
+                            {
+                                Die();
+                            }
                         }
                         else
                         {
-                            // Caparazón en movimiento mata al jugador
-                            Die();
+                            // Caparazón en movimiento: solo mata si viene hacia el jugador
+                            if ((k.Velocity.X > 0 && Hitbox.Center.X > k.Hitbox.Center.X) ||
+                                (k.Velocity.X < 0 && Hitbox.Center.X < k.Hitbox.Center.X))
+                            {
+                                Die();
+                            }
+                            else
+                            {
+                                // Viene desde atrás, no muere
+                                Velocity.Y = jumpForce / 2;
+                            }
                         }
                     }
                 }

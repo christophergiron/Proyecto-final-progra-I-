@@ -135,26 +135,24 @@ namespace JumpMan
 
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
-                var koopa = enemies[i] as Koopa;
-                if (koopa != null && koopa.IsInShell && koopa.IsMovingShell)
+                var e1 = enemies[i];
+
+                if (e1 is Koopa koopa && koopa.IsInShell && koopa.IsMovingShell)
                 {
                     for (int j = enemies.Count - 1; j >= 0; j--)
                     {
                         if (i == j) continue;
-                        var other = enemies[j];
+                        var e2 = enemies[j];
 
-                        if (koopa.Hitbox.Intersects(other.Hitbox))
+                        if (koopa.Hitbox.Intersects(e2.Hitbox))
                         {
-                            // Si es un Goomba o un Koopa que no está en caparazón
-                            if (other is Goomba || (other is Koopa k && !k.IsInShell))
-                            {
-                                enemies.RemoveAt(j);
-                                break;
-                            }
+                            enemies.RemoveAt(j); // mata al otro enemigo
+                            Music.PlaySquishFX();
                         }
                     }
                 }
             }
+
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
             Music.Update(gameTime);

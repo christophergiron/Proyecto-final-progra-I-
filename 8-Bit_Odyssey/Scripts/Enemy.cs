@@ -55,7 +55,6 @@ namespace Bit_Odyssey.Scripts
                     }
                     else
                     {
-                        // Colisión horizontal → invertir dirección
                         if (Velocity.X > 0)
                         {
                             Position.X = tile.Left - Hitbox.Width;
@@ -64,9 +63,9 @@ namespace Bit_Odyssey.Scripts
                         {
                             Position.X = tile.Right;
                         }
-
-                        movingLeft = !movingLeft;
                         Velocity.X = 0;
+                        movingLeft = !movingLeft;
+
                     }
                 }
             }

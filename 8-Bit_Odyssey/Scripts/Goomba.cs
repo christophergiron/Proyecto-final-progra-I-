@@ -18,9 +18,9 @@ namespace Bit_Odyssey.Scripts
             Velocity = new Vector2(-1.0f, 0); // Se mueve a la izquierda al principio
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime, List<Rectangle> tileColliders)
         {
-            base.Update(gameTime);
+            base.Update(gameTime, tileColliders);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
