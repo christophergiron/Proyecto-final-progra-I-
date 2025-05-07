@@ -17,7 +17,7 @@ namespace Bit_Odyssey.Scripts
         public Vector2 Position;
         public Vector2 Velocity;
         private float gravity = 0.4f;
-        private float jumpForce = -10f;
+        private float jumpForce = -11f;
         protected bool IsOnGround;
         private float fallLimit = 600;
         private bool isRespawning = false;
@@ -73,9 +73,6 @@ namespace Bit_Odyssey.Scripts
                 }
             }
 
-            if (!IsOnGround)
-                Velocity.Y += gravity;
-
             if (keyboard.IsKeyDown(Keys.S) && IsOnGround)
             {
                 Velocity.Y = jumpForce;
@@ -83,49 +80,55 @@ namespace Bit_Odyssey.Scripts
                 Music.PlayJumpFX();
             }
 
-            Position += Velocity;
+            if (!IsOnGround)
+                Velocity.Y += gravity;
 
             if (Position.Y > fallLimit)
-            {
                 Die();
-            }
         }
 
         public virtual void CheckTileCollisions(List<Rectangle> tileColliders)
         {
             IsOnGround = false;
+
+            Position.X += Velocity.X;
+            Rectangle hitboxX = Hitbox;
+
             foreach (var tile in tileColliders)
             {
-                if (Hitbox.Intersects(tile))
+                if (hitboxX.Intersects(tile))
                 {
-                    Rectangle intersection = Rectangle.Intersect(Hitbox, tile);
+                    if (Velocity.X > 0)
+                    {
+                        Position.X = tile.Left - Hitbox.Width;
+                    }
+                    else if (Velocity.X < 0)
+                    {
+                        Position.X = tile.Right;
+                    }
+                    Velocity.X = 0;
+                    hitboxX = Hitbox;
+                }
+            }
 
-                    if (intersection.Height < intersection.Width)
+            Position.Y += Velocity.Y;
+            Rectangle hitboxY = Hitbox;
+
+            foreach (var tile in tileColliders)
+            {
+                if (hitboxY.Intersects(tile))
+                {
+                    if (Velocity.Y > 0)
                     {
-                        if (Velocity.Y > 0)
-                        {
-                            Position.Y = tile.Top - Hitbox.Height;
-                            IsOnGround = true;
-                            Velocity.Y = 0;
-                        }
-                        else if (Velocity.Y < 0)
-                        {
-                            Position.Y = tile.Bottom;
-                            Velocity.Y = 0;
-                        }
+                        Position.Y = tile.Top - Hitbox.Height;
+                        IsOnGround = true;
                     }
-                    else
+                    else if (Velocity.Y < 0)
                     {
-                        if (Velocity.X > 0)
-                        {
-                            Position.X = tile.Left - Hitbox.Width;
-                        }
-                        else if (Velocity.X < 0)
-                        {
-                            Position.X = tile.Right;
-                        }
-                        Velocity.X = 0;
+                        Position.Y = tile.Bottom;
                     }
+                    Velocity.Y = 0;
+                    hitboxY = Hitbox;
                 }
             }
         }
@@ -170,7 +173,6 @@ namespace Bit_Odyssey.Scripts
                     {
                         if (!k.IsMovingShell)
                         {
-                            // Solo se puede patear desde los lados, no desde arriba
                             if (Math.Abs(Hitbox.Center.Y - k.Hitbox.Center.Y) < 10)
                             {
                                 int direction = (Hitbox.Center.X < k.Hitbox.Center.X) ? 1 : -1;
@@ -184,7 +186,6 @@ namespace Bit_Odyssey.Scripts
                         }
                         else
                         {
-                            // Caparazón en movimiento: solo mata si viene hacia el jugador
                             if ((k.Velocity.X > 0 && Hitbox.Center.X > k.Hitbox.Center.X) ||
                                 (k.Velocity.X < 0 && Hitbox.Center.X < k.Hitbox.Center.X))
                             {
@@ -192,7 +193,6 @@ namespace Bit_Odyssey.Scripts
                             }
                             else
                             {
-                                // Viene desde atrás, no muere
                                 Velocity.Y = jumpForce / 2;
                             }
                         }
@@ -215,4 +215,3 @@ namespace Bit_Odyssey.Scripts
         }
     }
 }
-

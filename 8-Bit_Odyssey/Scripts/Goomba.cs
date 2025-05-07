@@ -15,7 +15,7 @@ namespace Bit_Odyssey.Scripts
         public Goomba(Vector2 position)
         {
             Position = position;
-            Velocity = new Vector2(-1.0f, 0); // Se mueve a la izquierda al principio
+            Velocity = new Vector2(-1.0f, 0);
         }
 
         public override void Update(GameTime gameTime, List<Rectangle> tileColliders)
@@ -27,7 +27,7 @@ namespace Bit_Odyssey.Scripts
         {
             Texture2D pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
             pixel.SetData(new[] { Color.White });
-            spriteBatch.Draw(pixel, Hitbox, Color.SaddleBrown); // Marrón para Goomba
+            spriteBatch.Draw(pixel, Hitbox, Color.SaddleBrown);
         }
     }
 }

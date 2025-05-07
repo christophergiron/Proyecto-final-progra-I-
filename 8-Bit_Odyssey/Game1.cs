@@ -127,36 +127,27 @@ namespace JumpMan
                 JumpMan.CheckEnemyCollisions(enemies);
                 camera.Follow(JumpMan);
             }
-
             foreach (var enemy in enemies)
             {
-                enemy.Update(gameTime, tileColliders); 
+                enemy.Update(gameTime, tileColliders);
             }
-
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
-                var e1 = enemies[i];
-
-                if (e1 is Koopa koopa && koopa.IsInShell && koopa.IsMovingShell)
+                if (enemies[i] is Koopa koopa)
                 {
-                    for (int j = enemies.Count - 1; j >= 0; j--)
-                    {
-                        if (i == j) continue;
-                        var e2 = enemies[j];
-
-                        if (koopa.Hitbox.Intersects(e2.Hitbox))
-                        {
-                            enemies.RemoveAt(j); // mata al otro enemigo
-                            Music.PlaySquishFX();
-                        }
-                    }
+                    koopa.HandleShellCollisions(enemies);
                 }
             }
-
+            foreach (var enemy in enemies)
+            {
+                if (enemy is Koopa koopa)
+                    koopa.HandleShellCollisions(enemies);
+            }
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
             Music.Update(gameTime);
         }
+
 
         protected override void Draw(GameTime gameTime)
         {

@@ -8,6 +8,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Bit_Odyssey.Scripts
 {
+    using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Graphics;
+    using System.Collections.Generic;
+
     public class Koopa : Enemy
     {
         public bool IsInShell { get; private set; } = false;
@@ -17,7 +21,7 @@ namespace Bit_Odyssey.Scripts
         public Koopa(Vector2 position)
         {
             Position = position;
-            Velocity = new Vector2(-1.0f, 0);
+            Velocity = new Vector2(-1.0f, 0); // Empieza caminando
         }
 
         public override void Update(GameTime gameTime, List<Rectangle> tileColliders)
@@ -25,67 +29,139 @@ namespace Bit_Odyssey.Scripts
             if (IsInShell && !IsMovingShell)
             {
                 Velocity.X = 0;
-                Velocity.Y += gravity;
-                Position += Velocity;
-                CheckGround(tileColliders);
-                return;
+            }
+            else if (IsMovingShell)
+            {
+                // Movimiento constante
+            }
+            else
+            {
+                Velocity.X = movingLeft ? -1.0f : 1.0f;
             }
 
-            if (IsMovingShell)
-            {
+            // Aplicar gravedad siempre
+            if (!IsOnGround)
                 Velocity.Y += gravity;
-                Position += Velocity;
 
-                IsOnGround = false;
+            // Movimiento horizontal
+            Position.X += Velocity.X;
+            Rectangle hitboxX = Hitbox;
 
-                foreach (var tile in tileColliders)
+            foreach (var tile in tileColliders)
+            {
+                if (hitboxX.Intersects(tile))
                 {
-                    if (Hitbox.Intersects(tile))
+                    if (Velocity.X > 0)
                     {
-                        Rectangle intersection = Rectangle.Intersect(Hitbox, tile);
+                        Position.X = tile.Left - Hitbox.Width;
+                        if (IsMovingShell) Velocity.X *= -1;
+                    }
+                    else
+                    {
+                        Position.X = tile.Right;
+                        if (IsMovingShell) Velocity.X *= -1;
+                    }
 
-                        if (intersection.Height < intersection.Width)
-                        {
-                            // Colisión horizontal: rebota
-                            if (Velocity.X > 0)
-                                Position.X = tile.Left - Hitbox.Width;
-                            else
-                                Position.X = tile.Right;
+                    if (!IsInShell) movingLeft = !movingLeft;
+                    break;
+                }
+            }
 
-                            Velocity.X *= -1;
-                        }
-                        else
+            // Movimiento vertical
+            Position.Y += Velocity.Y;
+            Rectangle hitboxY = Hitbox;
+            IsOnGround = false;
+
+            foreach (var tile in tileColliders)
+            {
+                if (hitboxY.Intersects(tile))
+                {
+                    Rectangle intersection = Rectangle.Intersect(hitboxY, tile);
+                    if (intersection.Height < intersection.Width)
+                    {
+                        if (Velocity.Y > 0)
                         {
-                            // Colisión vertical
-                            if (Velocity.Y > 0)
-                            {
-                                Position.Y = tile.Top - Hitbox.Height;
-                                Velocity.Y = 0;
-                                IsOnGround = true;
-                            }
-                            else if (Velocity.Y < 0)
-                            {
-                                Position.Y = tile.Bottom;
-                                Velocity.Y = 0;
-                            }
+                            Position.Y = tile.Top - Hitbox.Height;
+                            Velocity.Y = 0;
+                            IsOnGround = true;
                         }
+                        else if (Velocity.Y < 0)
+                        {
+                            Position.Y = tile.Bottom;
+                            Velocity.Y = 0;
+                        }
+                        break;
                     }
                 }
-
-                return;
             }
-
-            // Koopa caminando normalmente (como Goomba)
-            base.Update(gameTime, tileColliders);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public void HandlePlayerCollision(Player player)
         {
-            Texture2D pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-            pixel.SetData(new[] { Color.White });
+            if (!Hitbox.Intersects(player.Hitbox)) return;
 
-            Color color = IsInShell ? (IsMovingShell ? Color.Orange : Color.Blue) : Color.Green;
-            spriteBatch.Draw(pixel, Hitbox, color);
+            // Detalle: solo lo considera "desde arriba" si viene cayendo y está justo encima
+            bool fromAbove = player.Velocity.Y > 0 && player.Hitbox.Bottom <= this.Hitbox.Top + 10;
+
+            if (IsInShell)
+            {
+                if (IsMovingShell)
+                {
+                    if (fromAbove)
+                    {
+                        StopShell();
+                        player.Velocity = new Vector2(player.Velocity.X, -6);
+                        Music.PlaySquishFX();
+                    }
+                    else
+                    {
+                        player.Die();
+                    }
+                }
+                else
+                {
+                    if (fromAbove)
+                    {
+                        KickShell(player.Position.X < this.Position.X ? 1 : -1);
+                        player.Velocity = new Vector2(player.Velocity.X, -6);
+                        Music.PlaySquishFX();
+                    }
+                    else
+                    {
+                        player.Die();
+                    }
+                }
+            }
+            else
+            {
+                if (fromAbove)
+                {
+                    EnterShell();
+                    player.Velocity = new Vector2(player.Velocity.X, -6);
+                    Music.PlaySquishFX();
+                }
+                else
+                {
+                    player.Die();
+                }
+            }
+        }
+
+        public void HandleShellCollisions(List<Enemy> allEnemies)
+        {
+            if (!IsInShell || !IsMovingShell) return;
+
+            for (int i = allEnemies.Count - 1; i >= 0; i--)
+            {
+                var other = allEnemies[i];
+                if (other == this) continue;
+
+                if (this.Hitbox.Intersects(other.Hitbox))
+                {
+                    allEnemies.RemoveAt(i);
+                    Music.PlaySquishFX();
+                }
+            }
         }
 
         public void EnterShell()
@@ -109,30 +185,13 @@ namespace Bit_Odyssey.Scripts
             Velocity = Vector2.Zero;
         }
 
-        private void CheckGround(List<Rectangle> tileColliders)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            IsOnGround = false;
-            foreach (var tile in tileColliders)
-            {
-                if (Hitbox.Intersects(tile))
-                {
-                    Rectangle intersection = Rectangle.Intersect(Hitbox, tile);
-                    if (intersection.Height < intersection.Width)
-                    {
-                        if (Velocity.Y > 0)
-                        {
-                            Position.Y = tile.Top - Hitbox.Height;
-                            Velocity.Y = 0;
-                            IsOnGround = true;
-                        }
-                        else if (Velocity.Y < 0)
-                        {
-                            Position.Y = tile.Bottom;
-                            Velocity.Y = 0;
-                        }
-                    }
-                }
-            }
+            Texture2D pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+            pixel.SetData(new[] { Color.White });
+
+            Color color = IsInShell ? (IsMovingShell ? Color.Orange : Color.Blue) : Color.Green;
+            spriteBatch.Draw(pixel, Hitbox, color);
         }
     }
 }
