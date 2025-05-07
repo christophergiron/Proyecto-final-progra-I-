@@ -29,7 +29,8 @@ namespace JumpMan
         private static TiledMapRenderer _tiledMapRenderer;
         private DemoController demoController;
         private DemoPlayer demoPlayer;
-
+        //temporal
+        private List<Rectangle> breakableBlocks;
         private bool wasInDemoMode = false;
 
         public Game1()
@@ -41,15 +42,17 @@ namespace JumpMan
 
         protected override void Initialize()
         {
+            breakableBlocks = new List<Rectangle>
+            {
+                new Rectangle(200, 300, 32, 32),
+
+            };
             RegenerarEnemigos();
             JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
             demoController = new DemoController();
             demoPlayer = new DemoPlayer(new Vector2(100, 369));
-
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
-
             musicManager = new Music();
-
             base.Initialize();
         }
 
@@ -57,8 +60,8 @@ namespace JumpMan
         {
             enemies = new List<Enemy>
         {
-            new Goomba(new Vector2(280, 369)),
-            new Koopa(new Vector2(380, 369)),
+            //new Goomba(new Vector2(280, 369)),
+            //new Koopa(new Vector2(380, 369)),
         };
         }
 
@@ -69,8 +72,8 @@ namespace JumpMan
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
             _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
             tileColliders = new List<Rectangle>();
-            var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
 
+            var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
             for (int y = 0; y < collisionLayer.Height; y++)
             {
                 for (int x = 0; x < collisionLayer.Width; x++)
@@ -87,6 +90,7 @@ namespace JumpMan
                     }
                 }
             }
+
             whiteTexture.SetData(new[] { Color.White });
             Music.Load(Content);
             Music.PlayMusicOverWorld();
@@ -124,13 +128,16 @@ namespace JumpMan
 
                 JumpMan.Update(gameTime, keyboard);
                 JumpMan.CheckTileCollisions(tileColliders);
+                JumpMan.CheckBreakableBlocks(breakableBlocks);
                 JumpMan.CheckEnemyCollisions(enemies);
                 camera.Follow(JumpMan);
             }
+
             foreach (var enemy in enemies)
             {
                 enemy.Update(gameTime, tileColliders);
             }
+
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
                 if (enemies[i] is Koopa koopa)
@@ -138,16 +145,11 @@ namespace JumpMan
                     koopa.HandleShellCollisions(enemies);
                 }
             }
-            foreach (var enemy in enemies)
-            {
-                if (enemy is Koopa koopa)
-                    koopa.HandleShellCollisions(enemies);
-            }
+
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
             Music.Update(gameTime);
         }
-
 
         protected override void Draw(GameTime gameTime)
         {
@@ -171,18 +173,21 @@ namespace JumpMan
 
             foreach (var enemy in enemies)
             {
-                Color color = Color.Green; // default
+                Color color = Color.Green;
                 if (enemy is Goomba) color = Color.SaddleBrown;
                 else if (enemy is Koopa koopa)
-                {
-                    color = koopa.IsInShell ? Color.Cyan : Color.ForestGreen;
-                }
+                    color = koopa.IsInShell ? (koopa.IsMovingShell ? Color.Orange : Color.Cyan) : Color.ForestGreen;
 
                 _spriteBatch.Draw(whiteTexture,
                     new Rectangle((int)(enemy.Position.X - camera.Position.X), (int)enemy.Position.Y, 32, 32),
                     color);
             }
-
+            foreach (var block in breakableBlocks)
+            {
+                _spriteBatch.Draw(whiteTexture,
+                    new Rectangle(block.X - (int)camera.Position.X, block.Y, block.Width, block.Height),
+                    Color.Yellow);
+            }
 
             _spriteBatch.End();
             base.Draw(gameTime);

@@ -156,47 +156,21 @@ namespace Bit_Odyssey.Scripts
                 }
                 else if (enemy is Koopa k)
                 {
-                    if (!k.IsInShell)
-                    {
-                        if (Velocity.Y > 0)
-                        {
-                            k.EnterShell();
-                            Velocity.Y = jumpForce / 2;
-                            Music.PlaySquishFX();
-                        }
-                        else
-                        {
-                            Die();
-                        }
-                    }
-                    else
-                    {
-                        if (!k.IsMovingShell)
-                        {
-                            if (Math.Abs(Hitbox.Center.Y - k.Hitbox.Center.Y) < 10)
-                            {
-                                int direction = (Hitbox.Center.X < k.Hitbox.Center.X) ? 1 : -1;
-                                k.KickShell(direction);
-                                Velocity.Y = jumpForce / 2;
-                            }
-                            else
-                            {
-                                Die();
-                            }
-                        }
-                        else
-                        {
-                            if ((k.Velocity.X > 0 && Hitbox.Center.X > k.Hitbox.Center.X) ||
-                                (k.Velocity.X < 0 && Hitbox.Center.X < k.Hitbox.Center.X))
-                            {
-                                Die();
-                            }
-                            else
-                            {
-                                Velocity.Y = jumpForce / 2;
-                            }
-                        }
-                    }
+                    k.HandlePlayerCollision(this);
+                }
+            }
+        }
+        public void CheckBreakableBlocks(List<Rectangle> breakables)
+        {
+            for (int i = breakables.Count - 1; i >= 0; i--)
+            {
+                Rectangle block = breakables[i];
+                Rectangle head = new Rectangle(Hitbox.X, Hitbox.Y, Hitbox.Width, 5);
+
+                if (Velocity.Y < 0 && head.Intersects(block))
+                {
+                    breakables.RemoveAt(i);
+                    Velocity.Y = 0;
                 }
             }
         }

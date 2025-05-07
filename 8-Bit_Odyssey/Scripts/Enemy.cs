@@ -28,7 +28,6 @@ namespace Bit_Odyssey.Scripts
 
             Velocity.X = movingLeft ? -1.0f : 1.0f;
 
-            // Mover en X
             Position.X += Velocity.X;
             Rectangle hitboxX = Hitbox;
             foreach (var tile in tileColliders)
@@ -49,7 +48,6 @@ namespace Bit_Odyssey.Scripts
                 }
             }
 
-            // Mover en Y
             Position.Y += Velocity.Y;
             Rectangle hitboxY = Hitbox;
             IsOnGround = false;
