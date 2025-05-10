@@ -60,8 +60,8 @@ namespace JumpMan
         {
             enemies = new List<Enemy>
         {
-            //new Goomba(new Vector2(280, 369)),
-            //new Koopa(new Vector2(380, 369)),
+            new Goomba(new Vector2(380, 369)),
+            new Koopa(new Vector2(680, 369)),
         };
         }
 
