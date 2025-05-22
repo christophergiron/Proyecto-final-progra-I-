@@ -7,11 +7,7 @@ using MonoGame.Extended.Tiled.Renderers;
 using MonoGame.Extended.Tiled;
 using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata;
-using Microsoft.VisualBasic.ApplicationServices;
-using MonoGame.Extended.ECS;
-using static System.Net.Mime.MediaTypeNames;
-
+using System.Reflection;
 
 namespace JumpMan
 {
@@ -29,9 +25,17 @@ namespace JumpMan
         private static TiledMapRenderer _tiledMapRenderer;
         private DemoController demoController;
         private DemoPlayer demoPlayer;
-        //temporal
+
         private List<Rectangle> breakableBlocks;
         private bool wasInDemoMode = false;
+
+        // Animación JumpMan
+        private Texture2D[] walkFrames;
+        private int currentFrame;
+        private double animationTimer;
+        private double frameDuration = 0.1;
+        private Texture2D jumpManTexture;
+     
 
         public Game1()
         {
@@ -45,35 +49,40 @@ namespace JumpMan
             breakableBlocks = new List<Rectangle>
             {
                 new Rectangle(200, 300, 32, 32),
-
             };
+
             RegenerarEnemigos();
             JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
             demoController = new DemoController();
             demoPlayer = new DemoPlayer(new Vector2(100, 369));
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
             musicManager = new Music();
+
             base.Initialize();
         }
 
         public void RegenerarEnemigos()
         {
             enemies = new List<Enemy>
-        {
-            new Goomba(new Vector2(380, 369)),
-            new Koopa(new Vector2(680, 369)),
-        };
+            {
+                new Goomba(new Vector2(380, 369)),
+                new Koopa(new Vector2(680, 369)),
+            };
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
+            whiteTexture.SetData(new[] { Color.White });
+            jumpManTexture = Content.Load<Texture2D>("Personaje/walk1");
+
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
             _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
-            tileColliders = new List<Rectangle>();
 
+            tileColliders = new List<Rectangle>();
             var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
+
             for (int y = 0; y < collisionLayer.Height; y++)
             {
                 for (int x = 0; x < collisionLayer.Width; x++)
@@ -91,7 +100,12 @@ namespace JumpMan
                 }
             }
 
-            whiteTexture.SetData(new[] { Color.White });
+            walkFrames = new Texture2D[6];
+            for (int i = 0; i < 6; i++)
+            {
+                walkFrames[i] = Content.Load<Texture2D>($"Personaje/walk{i + 1}");
+            }
+
             Music.Load(Content);
             Music.PlayMusicOverWorld();
         }
@@ -119,8 +133,8 @@ namespace JumpMan
                     JumpMan.Position = demoPlayer.Position;
                     JumpMan.Velocity = demoPlayer.Velocity;
 
-                    typeof(Player).GetField("IsOnGround", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                        ?.SetValue(JumpMan, typeof(DemoPlayer).GetField("IsOnGround", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(demoPlayer));
+                    typeof(Player).GetField("IsOnGround", BindingFlags.NonPublic | BindingFlags.Instance)
+                        ?.SetValue(JumpMan, typeof(DemoPlayer).GetField("IsOnGround", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(demoPlayer));
 
                     demoController.Reset();
                     wasInDemoMode = false;
@@ -146,6 +160,14 @@ namespace JumpMan
                 }
             }
 
+            // Actualizar animación de JumpMan
+            animationTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            if (animationTimer >= frameDuration)
+            {
+                currentFrame = (currentFrame + 1) % walkFrames.Length;
+                animationTimer = 0;
+            }
+
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
             Music.Update(gameTime);
@@ -160,15 +182,24 @@ namespace JumpMan
 
             if (demoController.InDemoMode)
             {
-                _spriteBatch.Draw(whiteTexture,
-                    new Rectangle((int)(demoPlayer.Position.X - camera.Position.X), (int)demoPlayer.Position.Y, 32, 32),
-                    Color.LightCoral);
+                Vector2 origin = new Vector2(0, 32); // origen en la esquina inferior izquierda
+
+                _spriteBatch.Draw(jumpManTexture,
+                     new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
+                      null,
+                      Color.White,
+                      0f,
+                      origin,
+                      1f,
+                      SpriteEffects.None,
+                      0f);
             }
             else
             {
-                _spriteBatch.Draw(whiteTexture,
-                    new Rectangle((int)(JumpMan.Position.X - camera.Position.X), (int)JumpMan.Position.Y, 32, 32),
-                    Color.Red);
+                Texture2D currentTexture = walkFrames[currentFrame];
+                _spriteBatch.Draw(currentTexture,
+                    new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
+                    Color.White);
             }
 
             foreach (var enemy in enemies)
@@ -182,6 +213,7 @@ namespace JumpMan
                     new Rectangle((int)(enemy.Position.X - camera.Position.X), (int)enemy.Position.Y, 32, 32),
                     color);
             }
+
             foreach (var block in breakableBlocks)
             {
                 _spriteBatch.Draw(whiteTexture,
