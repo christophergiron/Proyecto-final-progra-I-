@@ -1,11 +1,9 @@
 ﻿using Bit_Odyssey.Scripts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.Tiled.Renderers;
 using MonoGame.Extended.Tiled;
-using System;
+using MonoGame.Extended.Tiled.Renderers;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -17,25 +15,24 @@ namespace JumpMan
         private SpriteBatch _spriteBatch;
         private Player JumpMan;
         private List<Enemy> enemies;
+        private List<Block> blocks;
         private Texture2D whiteTexture;
         private Camera camera;
         private List<Rectangle> tileColliders;
-        private Music musicManager;
         private static TiledMap _tiledMap;
         private static TiledMapRenderer _tiledMapRenderer;
         private DemoController demoController;
         private DemoPlayer demoPlayer;
+        private Music musicManager;
 
-        private List<Rectangle> breakableBlocks;
         private bool wasInDemoMode = false;
 
-        // Animación JumpMan
+        // Animación del jugador
         private Texture2D[] walkFrames;
         private int currentFrame;
         private double animationTimer;
         private double frameDuration = 0.1;
         private Texture2D jumpManTexture;
-     
 
         public Game1()
         {
@@ -46,12 +43,13 @@ namespace JumpMan
 
         protected override void Initialize()
         {
-            breakableBlocks = new List<Rectangle>
+            blocks = new List<Block>
             {
-                new Rectangle(200, 300, 32, 32),
+                new BreakableBlock(new Rectangle(200, 300, 32, 32)),
             };
 
             RegenerarEnemigos();
+
             JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
             demoController = new DemoController();
             demoPlayer = new DemoPlayer(new Vector2(100, 369));
@@ -75,6 +73,7 @@ namespace JumpMan
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
+
             jumpManTexture = Content.Load<Texture2D>("Personaje/walk1");
 
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
@@ -123,7 +122,7 @@ namespace JumpMan
                     wasInDemoMode = true;
                 }
 
-                demoPlayer.Update(gameTime, tileColliders, enemies);
+                demoPlayer.Update(gameTime, tileColliders, blocks, enemies);
                 camera.Follow(demoPlayer);
             }
             else
@@ -141,26 +140,21 @@ namespace JumpMan
                 }
 
                 JumpMan.Update(gameTime, keyboard);
-                JumpMan.CheckTileCollisions(tileColliders);
-                JumpMan.CheckBreakableBlocks(breakableBlocks);
+                JumpMan.CheckBlockHits(blocks);
+                JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
                 camera.Follow(JumpMan);
             }
 
             foreach (var enemy in enemies)
-            {
                 enemy.Update(gameTime, tileColliders);
-            }
 
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
                 if (enemies[i] is Koopa koopa)
-                {
                     koopa.HandleShellCollisions(enemies);
-                }
             }
 
-            // Actualizar animación de JumpMan
             animationTimer += gameTime.ElapsedGameTime.TotalSeconds;
             if (animationTimer >= frameDuration)
             {
@@ -180,27 +174,10 @@ namespace JumpMan
 
             _tiledMapRenderer.Draw(camera.GetViewMatrix());
 
-            if (demoController.InDemoMode)
-            {
-                Vector2 origin = new Vector2(0, 32); // origen en la esquina inferior izquierda
-
-                _spriteBatch.Draw(jumpManTexture,
-                     new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
-                      null,
-                      Color.White,
-                      0f,
-                      origin,
-                      1f,
-                      SpriteEffects.None,
-                      0f);
-            }
-            else
-            {
-                Texture2D currentTexture = walkFrames[currentFrame];
-                _spriteBatch.Draw(currentTexture,
-                    new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
-                    Color.White);
-            }
+            Texture2D currentTexture = walkFrames[currentFrame];
+            _spriteBatch.Draw(currentTexture,
+                new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
+                Color.White);
 
             foreach (var enemy in enemies)
             {
@@ -214,12 +191,8 @@ namespace JumpMan
                     color);
             }
 
-            foreach (var block in breakableBlocks)
-            {
-                _spriteBatch.Draw(whiteTexture,
-                    new Rectangle(block.X - (int)camera.Position.X, block.Y, block.Width, block.Height),
-                    Color.Yellow);
-            }
+            foreach (var block in blocks)
+                block.Draw(_spriteBatch, whiteTexture, camera.Position);
 
             _spriteBatch.End();
             base.Draw(gameTime);

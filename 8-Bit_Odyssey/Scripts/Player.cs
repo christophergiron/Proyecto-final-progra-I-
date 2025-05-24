@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
 using System.Reflection.Metadata;
+using Bit_Odyssey.Scripts;
 
 namespace Bit_Odyssey.Scripts
 {
@@ -39,37 +40,51 @@ namespace Bit_Odyssey.Scripts
             float deceleration = 0.1f;
             float maxSpeed = 6f;
             float walkSpeed = 3f;
-            float targetSpeed = keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
+            float targetSpeed =  keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
 
             if (isRespawning)
             {
                 respawnTimer -= gameTime.ElapsedGameTime.TotalSeconds;
                 if (respawnTimer <= 0)
+                {
                     isRespawning = false;
+                }
                 return;
             }
 
             if (keyboard.IsKeyDown(Keys.Left))
             {
                 Velocity.X -= acceleration;
-                if (Velocity.X < -targetSpeed) Velocity.X = -targetSpeed;
+                if (Velocity.X < -targetSpeed)
+                {
+                    Velocity.X = -targetSpeed;
+                }
             }
             else if (keyboard.IsKeyDown(Keys.Right))
             {
                 Velocity.X += acceleration;
-                if (Velocity.X > targetSpeed) Velocity.X = targetSpeed;
+                if (Velocity.X > targetSpeed)
+                {
+                    Velocity.X = targetSpeed;
+                }
             }
             else
             {
                 if (Velocity.X > 0)
                 {
                     Velocity.X -= deceleration;
-                    if (Velocity.X < 0) Velocity.X = 0;
+                    if (Velocity.X < 0)
+                    {
+                        Velocity.X = 0;
+                    }
                 }
-                if (Velocity.X < 0)
+                else if (Velocity.X < 0)
                 {
                     Velocity.X += deceleration;
-                    if (Velocity.X > 0) Velocity.X = 0;
+                    if (Velocity.X > 0)
+                    {
+                        Velocity.X = 0;
+                    }
                 }
             }
 
@@ -81,15 +96,19 @@ namespace Bit_Odyssey.Scripts
             }
 
             if (!IsOnGround)
+            {
                 Velocity.Y += gravity;
+            }
+
 
             if (Position.Y > fallLimit)
+            {
                 Die();
+            }
         }
 
-        public virtual void CheckTileCollisions(List<Rectangle> tileColliders)
+        public void CheckCollisions(List<Rectangle> tileColliders, List<Block> blocks)
         {
-            IsOnGround = false;
 
             Position.X += Velocity.X;
             Rectangle hitboxX = Hitbox;
@@ -99,13 +118,24 @@ namespace Bit_Odyssey.Scripts
                 if (hitboxX.Intersects(tile))
                 {
                     if (Velocity.X > 0)
-                    {
-                        Position.X = tile.Left - Hitbox.Width;
-                    }
+                        Position.X = tile.Left - hitboxX.Width;
                     else if (Velocity.X < 0)
-                    {
                         Position.X = tile.Right;
-                    }
+                    Velocity.X = 0;
+                    hitboxX = Hitbox;
+                }
+            }
+
+            foreach (var block in blocks)
+            {
+                if (block.IsBroken) continue;
+
+                if (hitboxX.Intersects(block.Bounds))
+                {
+                    if (Velocity.X > 0)
+                        Position.X = block.Bounds.Left - hitboxX.Width;
+                    else if (Velocity.X < 0)
+                        Position.X = block.Bounds.Right;
                     Velocity.X = 0;
                     hitboxX = Hitbox;
                 }
@@ -113,6 +143,7 @@ namespace Bit_Odyssey.Scripts
 
             Position.Y += Velocity.Y;
             Rectangle hitboxY = Hitbox;
+            IsOnGround = false;
 
             foreach (var tile in tileColliders)
             {
@@ -120,7 +151,7 @@ namespace Bit_Odyssey.Scripts
                 {
                     if (Velocity.Y > 0)
                     {
-                        Position.Y = tile.Top - Hitbox.Height;
+                        Position.Y = tile.Top - hitboxY.Height;
                         IsOnGround = true;
                     }
                     else if (Velocity.Y < 0)
@@ -131,8 +162,27 @@ namespace Bit_Odyssey.Scripts
                     hitboxY = Hitbox;
                 }
             }
-        }
 
+            foreach (var block in blocks)
+            {
+                if (block.IsBroken) continue;
+
+                if (hitboxY.Intersects(block.Bounds))
+                {
+                    if (Velocity.Y > 0)
+                    {
+                        Position.Y = block.Bounds.Top - hitboxY.Height;
+                        IsOnGround = true;
+                    }
+                    else if (Velocity.Y < 0)
+                    {
+                        Position.Y = block.Bounds.Bottom;
+                    }
+                    Velocity.Y = 0;
+                    hitboxY = Hitbox;
+                }
+            }
+        }
         public void CheckEnemyCollisions(List<Enemy> enemies)
         {
             for (int i = enemies.Count - 1; i >= 0; i--)
@@ -160,17 +210,20 @@ namespace Bit_Odyssey.Scripts
                 }
             }
         }
-        public void CheckBreakableBlocks(List<Rectangle> breakables)
+        public void CheckBlockHits(List<Block> blocks)
         {
-            for (int i = breakables.Count - 1; i >= 0; i--)
+            if (Velocity.Y < 0)
             {
-                Rectangle block = breakables[i];
-                Rectangle head = new Rectangle(Hitbox.X, Hitbox.Y, Hitbox.Width, 5);
+                Rectangle head = new Rectangle(Hitbox.X, Hitbox.Y - 2, Hitbox.Width, 5);
 
-                if (Velocity.Y < 0 && head.Intersects(block))
+                foreach (var block in blocks)
                 {
-                    breakables.RemoveAt(i);
-                    Velocity.Y = 0;
+                    if (!block.IsBroken && block.IsSolid && head.Intersects(block.Bounds))
+                    {
+                        block.OnHit(this);
+                        Velocity.Y = 0;
+                        break;
+                    }
                 }
             }
         }

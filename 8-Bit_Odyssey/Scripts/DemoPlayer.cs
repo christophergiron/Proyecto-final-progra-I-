@@ -36,7 +36,7 @@ namespace Bit_Odyssey.Scripts
             lastRecordedX = position.X;
         }
 
-        public void Update(GameTime gameTime, List<Rectangle> platforms, List<Enemy> enemies)
+        public void Update(GameTime gameTime, List<Rectangle> tileColliders, List<Block> blocks, List<Enemy> enemies)
         {
             if (Position.Y > 600 && !isInDemoRespawn)
             {
@@ -68,7 +68,7 @@ namespace Bit_Odyssey.Scripts
             }
 
             base.Update(gameTime, new KeyboardState());
-            CheckTileCollisions(platforms);
+            CheckCollisions(tileColliders, blocks);
             CheckEnemyCollisions(enemies);
         }
 
