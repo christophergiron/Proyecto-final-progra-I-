@@ -4,7 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace JumpMan
@@ -48,24 +50,10 @@ namespace JumpMan
                 new BreakableBlock(new Rectangle(200, 300, 32, 32)),
             };
 
-            RegenerarEnemigos();
-
-            JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
-            demoController = new DemoController();
-            demoPlayer = new DemoPlayer(new Vector2(100, 369));
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
             musicManager = new Music();
 
             base.Initialize();
-        }
-
-        public void RegenerarEnemigos()
-        {
-            enemies = new List<Enemy>
-            {
-                new Goomba(new Vector2(380, 369)),
-                new Koopa(new Vector2(680, 369)),
-            };
         }
 
         protected override void LoadContent()
@@ -107,6 +95,46 @@ namespace JumpMan
 
             Music.Load(Content);
             Music.PlayMusicOverWorld();
+            RegenerarEnemigos();
+
+            JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
+            demoController = new DemoController();
+            demoPlayer = new DemoPlayer(new Vector2(100, 369));
+        }
+
+        public void RegenerarEnemigos()
+        {
+            enemies = new List<Enemy>();
+
+            var spawnerLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("EnemySpawner");
+            if (spawnerLayer != null)
+            {
+                foreach (var obj in spawnerLayer.Objects)
+                {
+                    Vector2 spawnPos = new Vector2(obj.Position.X, obj.Position.Y);
+
+                    if (obj.Properties.TryGetValue("enemyType", out var typeProp))
+                    {
+                        string type = typeProp.ToString();
+                        switch (typeProp)
+                        {
+                            case "Goomba":
+                                enemies.Add(new Goomba(spawnPos));
+                                break;
+
+                            case "Koopa":
+                                enemies.Add(new Koopa(spawnPos));
+                                break;
+
+                            default:
+                                //pon bien el bicho wn
+                                enemies.Add(new Goomba(spawnPos));
+                                break;
+
+                        }
+                    }
+                }
+            }
         }
 
         protected override void Update(GameTime gameTime)
