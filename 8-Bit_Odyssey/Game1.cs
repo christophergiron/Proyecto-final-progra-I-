@@ -25,6 +25,7 @@ namespace JumpMan
         private Texture2D whiteTexture;
         private Camera camera;
         private bool useDemoPlayer = false;
+        private List<Coin> coins;
         private List<Rectangle> tileColliders;
         private static TiledMap _tiledMap;
         private static TiledMapRenderer _tiledMapRenderer;
@@ -51,6 +52,12 @@ namespace JumpMan
             {
                 //new BreakableBlock(new Rectangle(200, 300, 32, 32)),
             };
+            coins = new List<Coin>
+            {
+                new Coin(new Vector2(250, 300)),
+                new Coin(new Vector2(280, 300)),
+            };
+
 
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
             musicManager = new Music();
@@ -173,6 +180,8 @@ namespace JumpMan
                 JumpMan.Update(gameTime, keyboard);
                 JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
+                foreach (var coin in coins)
+                    coin.Update(JumpMan);
                 camera.Follow(JumpMan);
             }
 
@@ -227,7 +236,7 @@ namespace JumpMan
                     Color.White);
             }
 
-            // Dibuja enemigos con colores según su estado
+            // Dibuja enemigos con colores según su estado placeholder temporal
             foreach (var enemy in enemies)
             {
                 Color color = Color.Green;
@@ -240,9 +249,12 @@ namespace JumpMan
                     color);
             }
 
-            // Dibuja bloques si no están rotos
+            // Dibuja bloques destruibles placeholder temporal
             foreach (var block in blocks)
                 block.Draw(_spriteBatch, whiteTexture, camera.Position);
+            //dibuja las monedas placeholder temporal
+            foreach (var coin in coins)
+                coin.Draw(_spriteBatch, whiteTexture, camera.Position);
 
             _spriteBatch.End();
             base.Draw(gameTime);

@@ -190,7 +190,6 @@ namespace Bit_Odyssey.Scripts
                             block.OnHit(this);
                         }
 
-                        // Detener la subida
                         Position.Y = block.Bounds.Bottom;
                         Velocity.Y = 0;
                     }
@@ -216,6 +215,7 @@ namespace Bit_Odyssey.Scripts
                         enemies.RemoveAt(i);
                         Velocity.Y = jumpForce / 2;
                         Music.PlaySquishFX();
+                        ScoreManager.AddPoints(200);
                     }
                     else
                     {
@@ -240,6 +240,7 @@ namespace Bit_Odyssey.Scripts
             Music.StopMusic();
             Music.PlayDieFX();
             Music.ResetMusic((float)Music.fxDie.Duration.TotalSeconds);
+            Console.WriteLine($" Game Over - Puntos: {ScoreManager.Points} | Monedas: {ScoreManager.Coins}");
         }
     }
 }
