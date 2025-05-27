@@ -15,22 +15,27 @@ namespace Bit_Odyssey.Scripts
 {
     public class BreakableBlock : Block
     {
-        private bool broken = false;
+        private bool _isBroken = false;
 
         public BreakableBlock(Rectangle bounds) : base(bounds) { }
 
-        public override bool IsBroken => broken;
+        public override bool IsBroken => _isBroken;
 
         public override void OnHit(Player player)
         {
-            broken = true;
+            _isBroken = true;
         }
 
         public override void Draw(SpriteBatch spriteBatch, Texture2D texture, Vector2 cameraPosition)
         {
-            if (IsBroken) return;
+            if (_isBroken) return;
 
-            base.Draw(spriteBatch, texture, cameraPosition);
+            spriteBatch.Draw(texture, new Rectangle(
+                Bounds.X - (int)cameraPosition.X,
+                Bounds.Y,
+                Bounds.Width,
+                Bounds.Height
+            ), Color.Yellow);
         }
     }
 }

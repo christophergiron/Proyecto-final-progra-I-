@@ -25,6 +25,10 @@ namespace Bit_Odyssey.Scripts
         private double respawnTimer = 0;
         private const double respawnDelay = 2.0;
         public Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
+        public bool IsRespawning()
+        {
+            return isRespawning;
+        }
 
         private Action onDeathCallback;
 
@@ -33,7 +37,7 @@ namespace Bit_Odyssey.Scripts
             Position = position;
             onDeathCallback = onDeath;
         }
-
+        //fisicas y logica de player 
         public void Update(GameTime gameTime, KeyboardState keyboard)
         {
             float acceleration = 0.15f;
@@ -41,7 +45,7 @@ namespace Bit_Odyssey.Scripts
             float maxSpeed = 6f;
             float walkSpeed = 3f;
             float targetSpeed =  keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
-
+            //controla el tiempo de respawn
             if (isRespawning)
             {
                 respawnTimer -= gameTime.ElapsedGameTime.TotalSeconds;
@@ -51,7 +55,7 @@ namespace Bit_Odyssey.Scripts
                 }
                 return;
             }
-
+            //maneja el movimiento lateral del player 
             if (keyboard.IsKeyDown(Keys.Left))
             {
                 Velocity.X -= acceleration;
@@ -87,7 +91,7 @@ namespace Bit_Odyssey.Scripts
                     }
                 }
             }
-
+            //maneja el salto de player
             if (keyboard.IsKeyDown(Keys.S) && IsOnGround)
             {
                 Velocity.Y = jumpForce;
@@ -106,10 +110,10 @@ namespace Bit_Odyssey.Scripts
                 Die();
             }
         }
-
+        //Se encarga de las colisiones e interaccion con bloques
         public void CheckCollisions(List<Rectangle> tileColliders, List<Block> blocks)
         {
-
+            // Movimiento horizontal
             Position.X += Velocity.X;
             Rectangle hitboxX = Hitbox;
 
@@ -141,6 +145,7 @@ namespace Bit_Odyssey.Scripts
                 }
             }
 
+            // Movimiento vertical
             Position.Y += Velocity.Y;
             Rectangle hitboxY = Hitbox;
             IsOnGround = false;
@@ -171,18 +176,31 @@ namespace Bit_Odyssey.Scripts
                 {
                     if (Velocity.Y > 0)
                     {
+                        // Colisión desde arriba
                         Position.Y = block.Bounds.Top - hitboxY.Height;
                         IsOnGround = true;
+                        Velocity.Y = 0;
                     }
                     else if (Velocity.Y < 0)
                     {
+                        // Golpe desde abajo: romper el bloque
+                        Rectangle head = new Rectangle(Hitbox.X, Hitbox.Y - 2, Hitbox.Width, 5);
+                        if (head.Intersects(block.Bounds) && block.IsSolid)
+                        {
+                            block.OnHit(this);
+                        }
+
+                        // Detener la subida
                         Position.Y = block.Bounds.Bottom;
+                        Velocity.Y = 0;
                     }
-                    Velocity.Y = 0;
+
                     hitboxY = Hitbox;
                 }
             }
         }
+
+        //maneja la interaccion con los enemigos 
         public void CheckEnemyCollisions(List<Enemy> enemies)
         {
             for (int i = enemies.Count - 1; i >= 0; i--)
@@ -210,24 +228,7 @@ namespace Bit_Odyssey.Scripts
                 }
             }
         }
-        public void CheckBlockHits(List<Block> blocks)
-        {
-            if (Velocity.Y < 0)
-            {
-                Rectangle head = new Rectangle(Hitbox.X, Hitbox.Y - 2, Hitbox.Width, 5);
-
-                foreach (var block in blocks)
-                {
-                    if (!block.IsBroken && block.IsSolid && head.Intersects(block.Bounds))
-                    {
-                        block.OnHit(this);
-                        Velocity.Y = 0;
-                        break;
-                    }
-                }
-            }
-        }
-
+        //maneja la muerte del player
         public void Die()
         {
             Position = new Vector2(100, 369);

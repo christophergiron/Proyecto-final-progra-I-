@@ -14,7 +14,6 @@ namespace Bit_Odyssey.Scripts
         private const float shellMaxTime = 5f;
         public bool IsInShell { get; private set; } = false;
         public bool IsMovingShell { get; private set; } = false;
-
         public override Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
 
         public Koopa(Vector2 position)
@@ -96,49 +95,43 @@ namespace Bit_Odyssey.Scripts
 
         public void HandlePlayerCollision(Player player)
         {
-            if (!Hitbox.Intersects(player.Hitbox)) return;
+            if (!player.Hitbox.Intersects(Hitbox)) return;
 
-            bool fromAbove = player.Hitbox.Bottom <= this.Hitbox.Top + 6 && player.Velocity.Y > 0;
+            Rectangle intersection = Rectangle.Intersect(player.Hitbox, Hitbox);
+
+            bool isFromAbove = intersection.Height < intersection.Width && player.Velocity.Y > 0;
 
             if (!IsInShell)
             {
-                if (fromAbove)
+                if (isFromAbove)
                 {
                     EnterShell();
-                    player.Velocity = new Vector2(player.Velocity.X, -6);
-                    Music.PlaySquishFX();
+                    player.Velocity = new Vector2(player.Velocity.X, -5); // rebote
                 }
                 else
                 {
-                    player.Die();
-                }
-            }
-            else if (!IsMovingShell)
-            {
-                if (fromAbove)
-                {
-                    int direction = player.Position.X < this.Position.X ? 1 : -1;
-                    KickShell(direction);
-                    player.Velocity = new Vector2(player.Velocity.X, -6);
-                    Music.PlaySquishFX();
-                }
-                else
-                {
-                    int direction = player.Position.X < this.Position.X ? 1 : -1;
-                    KickShell(direction);
+                    player.Die(); // Te mata si lo tocas de lado cuando no está en shell
                 }
             }
             else
             {
-                if (fromAbove)
+                if (IsMovingShell)
                 {
-                    StopShell();
-                    player.Velocity = new Vector2(player.Velocity.X, -6);
-                    Music.PlaySquishFX();
+                    if (isFromAbove)
+                    {
+                        StopShell(); // Rebote + detiene el caparazón
+                        player.Velocity = new Vector2(player.Velocity.X, -5);
+                    }
+                    else
+                    {
+                        player.Die(); // Te mata si tocas el caparazón en movimiento de lado
+                    }
                 }
                 else
                 {
-                    player.Die();
+                    // Si no está en movimiento, lo patea desde el lado
+                    int direction = player.Position.X < Position.X ? 1 : -1;
+                    KickShell(direction);
                 }
             }
         }

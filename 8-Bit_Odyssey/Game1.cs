@@ -2,12 +2,16 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using MonoGame.Extended.Collections;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace JumpMan
 {
@@ -20,14 +24,12 @@ namespace JumpMan
         private List<Block> blocks;
         private Texture2D whiteTexture;
         private Camera camera;
+        private bool useDemoPlayer = false;
         private List<Rectangle> tileColliders;
         private static TiledMap _tiledMap;
         private static TiledMapRenderer _tiledMapRenderer;
-        private DemoController demoController;
         private DemoPlayer demoPlayer;
         private Music musicManager;
-
-        private bool wasInDemoMode = false;
 
         // Animación del jugador
         private Texture2D[] walkFrames;
@@ -47,7 +49,7 @@ namespace JumpMan
         {
             blocks = new List<Block>
             {
-                new BreakableBlock(new Rectangle(200, 300, 32, 32)),
+                //new BreakableBlock(new Rectangle(200, 300, 32, 32)),
             };
 
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -67,6 +69,7 @@ namespace JumpMan
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
             _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
 
+            // Carga las colisiones principales
             tileColliders = new List<Rectangle>();
             var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
 
@@ -97,11 +100,14 @@ namespace JumpMan
             Music.PlayMusicOverWorld();
             RegenerarEnemigos();
 
+            // Se crea el player y demoplayer 
             JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
-            demoController = new DemoController();
-            demoPlayer = new DemoPlayer(new Vector2(100, 369));
+
+            // Solo activas esto si estás en el menú
+            // demoPlayer = new DemoPlayer(new Vector2(100, 369));
         }
 
+        //encargado de leer a los enemigos y cargarlos
         public void RegenerarEnemigos()
         {
             enemies = new List<Enemy>();
@@ -127,10 +133,9 @@ namespace JumpMan
                                 break;
 
                             default:
-                                //pon bien el bicho wn
+                                //coloca bien los enemigos
                                 enemies.Add(new Goomba(spawnPos));
                                 break;
-
                         }
                     }
                 }
@@ -140,35 +145,32 @@ namespace JumpMan
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboard = Keyboard.GetState();
-            demoController.Update(gameTime, keyboard);
 
-            if (demoController.InDemoMode)
+            if (keyboard.IsKeyDown(Keys.Tab))
             {
-                if (!wasInDemoMode)
-                {
-                    demoPlayer = new DemoPlayer(new Vector2(100, 369));
-                    wasInDemoMode = true;
-                }
+                //descomenta esto jose cuando tengas lo de tiled
+                //if (keyboard.IsKeyDown(Keys.Tab))
+                //{
+                //    useDemoPlayer = true;
+                //    if (demoPlayer == null)
+                //    var puntosDeSalto = ObtenerPuntosDeSaltoDesdeTiled();
+                //    demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarEnemigos, puntosDeSalto);
+                //}
+            }
+            else if (keyboard.IsKeyDown(Keys.Enter))
+            {
+                useDemoPlayer = false;
+                demoPlayer = null;
+            }
 
+            if (useDemoPlayer && demoPlayer != null)
+            {
                 demoPlayer.Update(gameTime, tileColliders, blocks, enemies);
                 camera.Follow(demoPlayer);
             }
             else
             {
-                if (wasInDemoMode)
-                {
-                    JumpMan.Position = demoPlayer.Position;
-                    JumpMan.Velocity = demoPlayer.Velocity;
-
-                    typeof(Player).GetField("IsOnGround", BindingFlags.NonPublic | BindingFlags.Instance)
-                        ?.SetValue(JumpMan, typeof(DemoPlayer).GetField("IsOnGround", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(demoPlayer));
-
-                    demoController.Reset();
-                    wasInDemoMode = false;
-                }
-
                 JumpMan.Update(gameTime, keyboard);
-                JumpMan.CheckBlockHits(blocks);
                 JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
                 camera.Follow(JumpMan);
@@ -194,7 +196,7 @@ namespace JumpMan
             base.Update(gameTime);
             Music.Update(gameTime);
         }
-
+        //se dibuja al demo player temporalmente como un cubo rosa para pruebas y si no se activa el demo se activa el dibujado del sprite de player 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
@@ -202,11 +204,30 @@ namespace JumpMan
 
             _tiledMapRenderer.Draw(camera.GetViewMatrix());
 
-            Texture2D currentTexture = walkFrames[currentFrame];
-            _spriteBatch.Draw(currentTexture,
-                new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
-                Color.White);
+            // Dibuja al jugador 
+            //Texture2D currentTexture = walkFrames[currentFrame];
+            //_spriteBatch.Draw(currentTexture, 
+            //    new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
+            //    Color.White);
+            if (useDemoPlayer && demoPlayer != null)
+            {
+                _spriteBatch.Draw(whiteTexture,
+                    new Rectangle(
+                        (int)(demoPlayer.Position.X - camera.Position.X),
+                        (int)demoPlayer.Position.Y,
+                        32,
+                        32),
+                    Color.HotPink);
+            }
+            else
+            {
+                Texture2D currentTexture = walkFrames[currentFrame];
+                _spriteBatch.Draw(currentTexture,
+                    new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
+                    Color.White);
+            }
 
+            // Dibuja enemigos con colores según su estado
             foreach (var enemy in enemies)
             {
                 Color color = Color.Green;
@@ -219,6 +240,7 @@ namespace JumpMan
                     color);
             }
 
+            // Dibuja bloques si no están rotos
             foreach (var block in blocks)
                 block.Draw(_spriteBatch, whiteTexture, camera.Position);
 
@@ -227,3 +249,4 @@ namespace JumpMan
         }
     }
 }
+
