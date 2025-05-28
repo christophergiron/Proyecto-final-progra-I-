@@ -225,6 +225,7 @@ namespace Bit_Odyssey.Scripts
                 else if (enemy is Koopa k)
                 {
                     k.HandlePlayerCollision(this);
+                    Music.PlaySquishFX();
                 }
             }
         }

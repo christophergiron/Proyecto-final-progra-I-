@@ -123,7 +123,16 @@
 /copy:SoundFX/Bump.wav
 
 #begin SoundFX/Coin.wav
-/copy:SoundFX/Coin.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Coin.wav
+
+#begin SoundFX/Coin.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Coin.wav
 
 #begin SoundFX/Die.wav
 /importer:WavImporter
