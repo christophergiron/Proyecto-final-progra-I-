@@ -18,6 +18,7 @@ namespace Bit_Odyssey.Scripts
         private static SoundEffect fxSquish;
         private static Song underGround;
         public static SoundEffect fxDie;
+        public static SoundEffect fxCoin;
         private static bool esperaReset = false;
         private static float resetMusic = 0f;
         
@@ -28,6 +29,7 @@ namespace Bit_Odyssey.Scripts
             fxSquish = content.Load<SoundEffect>("SoundFX/Squish");
             fxDie = content.Load<SoundEffect>("SoundFX/Die");
             underGround = content.Load<Song>("Music/Underground");
+            fxCoin = content.Load<SoundEffect>("SoundFX/Coin");
         }
 
         public static void PlayMusicOverWorld()
@@ -56,7 +58,10 @@ namespace Bit_Odyssey.Scripts
         {
             MediaPlayer.Stop();
         }
-
+        public static void PlayCoinFX()
+        {
+            fxCoin.Play();
+        }
         public static void ResetMusic(float deathFXDuration)
         {
             esperaReset = true;

@@ -30,7 +30,7 @@ namespace Bit_Odyssey.Scripts
             {
                 Collected = true;
                 ScoreManager.AddCoin();
-                // Music.PlayCoinFX(); // Si tienes un efecto
+                Music.PlayCoinFX(); // Si tienes un efecto
             }
         }
 
