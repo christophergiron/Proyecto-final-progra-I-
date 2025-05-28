@@ -22,6 +22,9 @@ namespace JumpMan
         private Player JumpMan;
         private List<Enemy> enemies;
         private List<Block> blocks;
+        private int lives = 3;
+        private bool isGameOver = false;
+        private SpriteFont font;
         private Texture2D whiteTexture;
         private Camera camera;
         private bool useDemoPlayer = false;
@@ -107,9 +110,23 @@ namespace JumpMan
             Music.PlayMusicOverWorld();
             RegenerarEnemigos();
 
-            // Se crea el player y demoplayer 
+            // Se crea el player y demoplayer  logica del game over 
             JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
+            {
+                lives--;
 
+                if (lives <= 0)
+                {
+                    isGameOver = true;
+                }
+                else
+                {
+                    JumpMan.Position = new Vector2(100, 300);
+                    JumpMan.Velocity = Vector2.Zero;
+                }
+            };
+            //carga el archivo de fuentes temporal
+            font = Content.Load<SpriteFont>("DefaultFont");
             // Solo activas esto si estás en el menú
             // demoPlayer = new DemoPlayer(new Vector2(100, 369));
         }
@@ -153,6 +170,20 @@ namespace JumpMan
         {
             KeyboardState keyboard = Keyboard.GetState();
 
+            if (isGameOver)
+            {
+                // reinicia luego del game over temporal
+                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+                {
+                    lives = 3;
+                    isGameOver = false;
+                    JumpMan.Position = new Vector2(100, 300);
+                    JumpMan.Velocity = Vector2.Zero;
+                    RegenerarEnemigos();
+                }
+                return;
+            }
+
             if (keyboard.IsKeyDown(Keys.Tab))
             {
                 //descomenta esto jose cuando tengas lo de tiled
@@ -184,10 +215,11 @@ namespace JumpMan
                     coin.Update(JumpMan);
                 camera.Follow(JumpMan);
             }
-
-            foreach (var enemy in enemies)
-                enemy.Update(gameTime, tileColliders);
-
+            if (!JumpMan.isRespawning)
+            {
+                foreach (var enemy in enemies)
+                    enemy.Update(gameTime, tileColliders);
+            }
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
                 if (enemies[i] is Koopa koopa)
@@ -255,7 +287,14 @@ namespace JumpMan
             //dibuja las monedas placeholder temporal
             foreach (var coin in coins)
                 coin.Draw(_spriteBatch, whiteTexture, camera.Position);
+            //dibuja las vidas Temporal 
+            _spriteBatch.DrawString(font, $"Vidas: {lives}", new Vector2(10, 70), Color.White);
 
+            if (isGameOver)
+            {
+                _spriteBatch.DrawString(font, "GAME OVER", new Vector2(200, 200), Color.Red);
+                _spriteBatch.DrawString(font, "Presiona ENTER para reiniciar", new Vector2(180, 230), Color.Yellow);
+            }
             _spriteBatch.End();
             base.Draw(gameTime);
         }

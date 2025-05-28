@@ -21,7 +21,7 @@ namespace Bit_Odyssey.Scripts
         private float jumpForce = -11f;
         protected bool IsOnGround;
         private float fallLimit = 600;
-        private bool isRespawning = false;
+        public bool isRespawning = false;
         private double respawnTimer = 0;
         private const double respawnDelay = 2.0;
         public Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
