@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace JumpMan
@@ -24,6 +25,8 @@ namespace JumpMan
         private List<Block> blocks;
         private int lives = 3;
         private bool isGameOver = false;
+        private double gameTimer = 400;
+        private bool musicSpedUp = false;
         private SpriteFont font;
         private Texture2D whiteTexture;
         private Camera camera;
@@ -111,9 +114,11 @@ namespace JumpMan
             RegenerarEnemigos();
 
             // Se crea el player y demoplayer  logica del game over 
-            JumpMan = new Player(new Vector2(100, 300), RegenerarEnemigos);
+            JumpMan = new Player(new Vector2(100, 300), () =>
             {
                 lives--;
+
+                gameTimer = 400;
 
                 if (lives <= 0)
                 {
@@ -124,7 +129,9 @@ namespace JumpMan
                     JumpMan.Position = new Vector2(100, 300);
                     JumpMan.Velocity = Vector2.Zero;
                 }
-            };
+
+                RegenerarEnemigos();
+            });
             //carga el archivo de fuentes temporal
             font = Content.Load<SpriteFont>("DefaultFont");
             // Solo activas esto si estás en el menú
@@ -177,11 +184,28 @@ namespace JumpMan
                 {
                     lives = 3;
                     isGameOver = false;
+                    gameTimer = 400;
+                    musicSpedUp = false;
                     JumpMan.Position = new Vector2(100, 300);
                     JumpMan.Velocity = Vector2.Zero;
                     RegenerarEnemigos();
                 }
                 return;
+            }
+            if (!useDemoPlayer && !isGameOver)
+            {
+                gameTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (gameTimer <= 0 && !JumpMan.isRespawning)
+                {
+                    JumpMan.Die();
+                }
+            }
+
+            if (gameTimer <= 100 && !musicSpedUp)
+            {
+                //musica rapida //mete aqui la musica acelerada miguel
+                musicSpedUp = true;
             }
 
             if (keyboard.IsKeyDown(Keys.Tab))
@@ -287,8 +311,9 @@ namespace JumpMan
             //dibuja las monedas placeholder temporal
             foreach (var coin in coins)
                 coin.Draw(_spriteBatch, whiteTexture, camera.Position);
-            //dibuja las vidas Temporal 
+            //dibuja las vidas y tiempo Temporal 
             _spriteBatch.DrawString(font, $"Vidas: {lives}", new Vector2(10, 70), Color.White);
+            _spriteBatch.DrawString(font, $"Tiempo: {Math.Ceiling(gameTimer)}", new Vector2(10, 40), Color.White);
 
             if (isGameOver)
             {
