@@ -48,6 +48,10 @@ namespace Bit_Odyssey.Scripts
         {
             fxJump.Play();
         }
+        public static void PlayBreakFX()
+        { 
+            fxBreak.Play(); 
+        }
         public static void PlaySquishFX()
         {
             fxSquish.Play();
