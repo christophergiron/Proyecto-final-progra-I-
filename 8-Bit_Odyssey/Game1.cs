@@ -173,6 +173,24 @@ namespace JumpMan
             }
         }
 
+        private List<float> DemoPlayerCords()
+        {
+            List<float> puntos = new List<float>();
+
+            var layer = _tiledMap.GetLayer<TiledMapObjectLayer>("DemoJumpPoints"); //capa de objetos que se busca
+            if (layer != null)
+            {
+                foreach (var obj in layer.Objects)
+                {
+                    puntos.Add(obj.Position.X); //usamos los puntos insertados en el mapa
+                }
+
+                puntos.Sort();
+            }
+
+            return puntos;
+        }
+
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboard = Keyboard.GetState();
@@ -211,13 +229,15 @@ namespace JumpMan
             if (keyboard.IsKeyDown(Keys.Tab))
             {
                 //descomenta esto jose cuando tengas lo de tiled
-                //if (keyboard.IsKeyDown(Keys.Tab))
-                //{
-                //    useDemoPlayer = true;
-                //    if (demoPlayer == null)
-                //    var puntosDeSalto = ObtenerPuntosDeSaltoDesdeTiled();
-                //    demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarEnemigos, puntosDeSalto);
-                //}
+                if (keyboard.IsKeyDown(Keys.Tab))
+                {
+                    useDemoPlayer = true;
+                    if (demoPlayer == null)
+                    {
+                        var puntosDeSalto = DemoPlayerCords();
+                        demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarEnemigos, puntosDeSalto);
+                    }
+                }
             }
             else if (keyboard.IsKeyDown(Keys.Enter))
             {

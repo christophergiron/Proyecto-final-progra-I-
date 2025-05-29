@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="500" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="35">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="500" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="71">
  <tileset firstgid="1" source="../../Tilesets/TileSet Day 32x.tsx"/>
  <tileset firstgid="33" source="../../Tilesets/TileSet Day/Day2.tsx"/>
  <tileset firstgid="43" source="../../Tilesets/TileSet Day/Day3.tsx"/>
@@ -61,16 +61,70 @@
   </object>
  </objectgroup>
  <objectgroup id="4" name="DemoJumpPoints">
-  <object id="31" x="719.455" y="400">
+  <object id="33" x="1522" y="315.5">
    <point/>
   </object>
-  <object id="32" x="800" y="343">
+  <object id="34" x="1233.67" y="349.167">
    <point/>
   </object>
-  <object id="33" x="868" y="397.5">
+  <object id="36" x="241.5" y="339.833">
    <point/>
   </object>
-  <object id="34" x="1069" y="387.5">
+  <object id="44" x="736.545" y="342.727">
+   <point/>
+  </object>
+  <object id="53" x="1023" y="346">
+   <point/>
+  </object>
+  <object id="54" x="2033" y="323">
+   <point/>
+  </object>
+  <object id="55" x="2513" y="342">
+   <point/>
+  </object>
+  <object id="56" x="2754" y="343">
+   <point/>
+  </object>
+  <object id="57" x="4111" y="331">
+   <point/>
+  </object>
+  <object id="58" x="4189" y="280">
+   <point/>
+  </object>
+  <object id="59" x="4545" y="355">
+   <point/>
+  </object>
+  <object id="60" x="4640" y="283">
+   <point/>
+  </object>
+  <object id="61" x="5027" y="344">
+   <point/>
+  </object>
+  <object id="62" x="5201" y="326">
+   <point/>
+  </object>
+  <object id="63" x="5582" y="319">
+   <point/>
+  </object>
+  <object id="64" x="5713" y="252">
+   <point/>
+  </object>
+  <object id="65" x="5930" y="126">
+   <point/>
+  </object>
+  <object id="66" x="5812" y="177">
+   <point/>
+  </object>
+  <object id="67" x="6096" y="328">
+   <point/>
+  </object>
+  <object id="68" x="4737" y="190">
+   <point/>
+  </object>
+  <object id="69" x="3374" y="287">
+   <point/>
+  </object>
+  <object id="70" x="3790" y="339">
    <point/>
   </object>
  </objectgroup>
