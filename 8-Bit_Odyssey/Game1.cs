@@ -37,6 +37,7 @@ namespace JumpMan
         private static TiledMapRenderer _tiledMapRenderer;
         private DemoPlayer demoPlayer;
         private Music musicManager;
+        private List<Texture2D> coinFrames;//moneda
 
         // Animación del jugador
         private Texture2D[] walkFrames;
@@ -44,6 +45,7 @@ namespace JumpMan
         private double animationTimer;
         private double frameDuration = 0.1;
         private Texture2D jumpManTexture;
+
 
         public Game1()
         {
@@ -58,11 +60,7 @@ namespace JumpMan
             {
                 //new BreakableBlock(new Rectangle(200, 300, 32, 32)),
             };
-            coins = new List<Coin>
-            {
-                new Coin(new Vector2(250, 300)),
-                new Coin(new Vector2(280, 300)),
-            };
+            
 
 
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -112,6 +110,20 @@ namespace JumpMan
             Music.Load(Content);
             Music.PlayMusicOverWorld();
             RegenerarEnemigos();
+
+            //moneda
+            coinFrames = new List<Texture2D>();
+            for (int i = 1; i <= 9; i++)
+            {
+                coinFrames.Add(Content.Load<Texture2D>($"coin/goldCoin{i}"));
+            }
+
+            coins = new List<Coin>
+            {
+            new Coin(new Vector2(250, 300), coinFrames),
+            new Coin(new Vector2(280, 300), coinFrames)
+            };
+
 
             // Se crea el player y demoplayer  logica del game over 
             JumpMan = new Player(new Vector2(100, 300), () =>
@@ -256,7 +268,7 @@ namespace JumpMan
                 JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
                 foreach (var coin in coins)
-                    coin.Update(JumpMan);
+                    coin.Update(JumpMan , gameTime);//coin
                 camera.Follow(JumpMan);
             }
             if (!JumpMan.isRespawning)
@@ -330,7 +342,7 @@ namespace JumpMan
                 block.Draw(_spriteBatch, whiteTexture, camera.Position);
             //dibuja las monedas placeholder temporal
             foreach (var coin in coins)
-                coin.Draw(_spriteBatch, whiteTexture, camera.Position);
+                coin.Draw(_spriteBatch, camera.Position);//coin
             //dibuja las vidas y tiempo Temporal 
             _spriteBatch.DrawString(font, $"Vidas: {lives}", new Vector2(10, 70), Color.White);
             _spriteBatch.DrawString(font, $"Tiempo: {Math.Ceiling(gameTimer)}", new Vector2(10, 40), Color.White);
