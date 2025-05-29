@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="500" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="71">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="500" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="76">
  <tileset firstgid="1" source="../../Tilesets/TileSet Day 32x.tsx"/>
  <tileset firstgid="33" source="../../Tilesets/TileSet Day/Day2.tsx"/>
  <tileset firstgid="43" source="../../Tilesets/TileSet Day/Day3.tsx"/>
@@ -43,20 +43,25 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="EnemySpawner">
+ <objectgroup id="3" name="ObjectSpawner">
   <object id="11" gid="1073741920" x="578.523" y="383.523" width="32" height="32" rotation="180.083">
    <properties>
-    <property name="enemyType" value="Koopa"/>
+    <property name="objectType" value="Koopa"/>
    </properties>
   </object>
   <object id="12" gid="2147483743" x="480.5" y="416.5" width="32" height="32">
    <properties>
-    <property name="enemyType" value="Goomba"/>
+    <property name="objectType" value="Goomba"/>
    </properties>
   </object>
-  <object id="18" x="-24" y="0.5" width="23.5" height="478.5">
+  <object id="72" gid="3" x="480" y="320" width="32" height="32">
    <properties>
-    <property name="globalCollition" value="set"/>
+    <property name="objectType" value="Bloque_destruible"/>
+   </properties>
+  </object>
+  <object id="75" gid="3" x="-37.9078" y="475.973" width="37" height="473">
+   <properties>
+    <property name="objectType" value="Bloque_destruible"/>
    </properties>
   </object>
  </objectgroup>

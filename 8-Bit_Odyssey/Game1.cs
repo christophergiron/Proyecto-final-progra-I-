@@ -109,7 +109,7 @@ namespace JumpMan
 
             Music.Load(Content);
             Music.PlayMusicOverWorld();
-            RegenerarEnemigos();
+            RegenerarObjetos();
 
             //moneda
             coinFrames = new List<Texture2D>();
@@ -142,7 +142,7 @@ namespace JumpMan
                     JumpMan.Velocity = Vector2.Zero;
                 }
 
-                RegenerarEnemigos();
+                RegenerarObjetos();
             });
             //carga el archivo de fuentes temporal
             font = Content.Load<SpriteFont>("DefaultFont");
@@ -150,19 +150,21 @@ namespace JumpMan
             // demoPlayer = new DemoPlayer(new Vector2(100, 369));
         }
 
-        //encargado de leer a los enemigos y cargarlos
-        public void RegenerarEnemigos()
+        //encargado de leer a los objetos y cargarlos
+        public void RegenerarObjetos()
         {
             enemies = new List<Enemy>();
+            blocks = new List<Block>();
+            coins = new List<Coin>();
 
-            var spawnerLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("EnemySpawner");
+            var spawnerLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("ObjectSpawner");
             if (spawnerLayer != null)
             {
                 foreach (var obj in spawnerLayer.Objects)
                 {
                     Vector2 spawnPos = new Vector2(obj.Position.X, obj.Position.Y);
 
-                    if (obj.Properties.TryGetValue("enemyType", out var typeProp))
+                    if (obj.Properties.TryGetValue("objectType", out var typeProp))
                     {
                         string type = typeProp.ToString();
                         switch (typeProp)
@@ -175,8 +177,23 @@ namespace JumpMan
                                 enemies.Add(new Koopa(spawnPos));
                                 break;
 
+                            case "Bloque_destruible":
+                                Rectangle rect = new Rectangle(
+                                    (int)obj.Position.X,
+                                    (int)(obj.Position.Y - obj.Size.Height),
+                                    (int)obj.Size.Width,
+                                    (int)obj.Size.Height
+                                );
+
+                                blocks.Add(new BreakableBlock(rect));
+                                break;  
+                                            
+                            //case "Moneda":
+                                //coins.Add(new Coin(spawnPos), coinFrames);
+                                //break;
+
                             default:
-                                //coloca bien los enemigos
+                                //coloca bien los objetos
                                 enemies.Add(new Goomba(spawnPos));
                                 break;
                         }
@@ -218,7 +235,7 @@ namespace JumpMan
                     musicSpedUp = false;
                     JumpMan.Position = new Vector2(100, 300);
                     JumpMan.Velocity = Vector2.Zero;
-                    RegenerarEnemigos();
+                    RegenerarObjetos();
                 }
                 return;
             }
@@ -247,7 +264,7 @@ namespace JumpMan
                     if (demoPlayer == null)
                     {
                         var puntosDeSalto = DemoPlayerCords();
-                        demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarEnemigos, puntosDeSalto);
+                        demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarObjetos, puntosDeSalto);
                     }
                 }
             }
