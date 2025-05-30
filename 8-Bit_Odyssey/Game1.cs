@@ -276,7 +276,7 @@ namespace JumpMan
                 foreach (var coin in coins)
                     coin.Update(JumpMan, gameTime);
 
-                if (Keyboard.GetState().IsKeyDown(Keys.S))
+                if (Keyboard.GetState().IsKeyDown(Keys.Down))
                 {
                     foreach (var warp in warpZones)
                     {
