@@ -14,7 +14,10 @@ namespace Bit_Odyssey.Scripts
         public Vector2 Position;
         public Vector2 Velocity;
         private float gravity = 0.4f;
-        private float jumpForce = -11f;
+        private float jumpForce = -7f;
+        private bool jumpHeld = false;
+        private float jumpTime = 0f;
+        private float maxJumpTime = 0.25f;
         protected bool IsOnGround;
         private float fallLimit = 600;
         public bool isRespawning = false;
@@ -105,7 +108,24 @@ namespace Bit_Odyssey.Scripts
             {
                 Velocity.Y = jumpForce;
                 IsOnGround = false;
+                jumpHeld = true;
+                jumpTime = 0f;
                 Music.PlayJumpFX();
+            }
+
+            // Si se está manteniendo el salto
+            if (keyboard.IsKeyDown(Keys.S) && jumpHeld)
+            {
+                jumpTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (jumpTime < maxJumpTime)
+                {
+                    Velocity.Y -= 0.4f; // Ajusta este valor si quieres más o menos "flotabilidad"
+                }
+            }
+            else
+            {
+                jumpHeld = false;
             }
 
             if (!IsOnGround)
