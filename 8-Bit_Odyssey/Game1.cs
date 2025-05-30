@@ -8,6 +8,7 @@ using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace JumpMan
@@ -21,6 +22,7 @@ namespace JumpMan
         private List<Enemy> enemies;
         private List<Block> blocks;
         private List<Coin> coins;
+        private List<TiledMapObject> warpZones;
         private List<Rectangle> tileColliders;
 
         private int lives = 3;
@@ -89,6 +91,8 @@ namespace JumpMan
                     if (!tile.IsBlank)
                         tileColliders.Add(new Rectangle(x * _tiledMap.TileWidth, y * _tiledMap.TileHeight, _tiledMap.TileWidth, _tiledMap.TileHeight));
                 }
+            var warpLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("Warps");
+            warpZones = warpLayer?.Objects?.ToList() ?? new List<TiledMapObject>();
 
             // Carga animaciones jugador
             walkRightFrames = new Texture2D[6];
@@ -241,7 +245,6 @@ namespace JumpMan
                 musicSpedUp = true;
                 Music.PlayMusicOverworldSpeed();
                
-                // Aquí puedes acelerar la música
             }
 
             if (keyboard.IsKeyDown(Keys.Tab))
@@ -273,6 +276,54 @@ namespace JumpMan
                 foreach (var coin in coins)
                     coin.Update(JumpMan, gameTime);
 
+                if (Keyboard.GetState().IsKeyDown(Keys.S))
+                {
+                    foreach (var warp in warpZones)
+                    {
+                        Rectangle warpRect = new Rectangle((int)warp.Position.X, (int)warp.Position.Y, (int)warp.Size.Width, (int)warp.Size.Height);
+                        if (JumpMan.Hitbox.Intersects(warpRect))
+                        {
+                            if (warp.Properties.TryGetValue("warpTarget", out var targetMapObj))
+                            {
+                                string targetMap = targetMapObj.ToString();
+                                float spawnX = 100, spawnY = 300; 
+
+                                if (warp.Properties.TryGetValue("spawnX", out var spawnXProp))
+                                    float.TryParse(spawnXProp.ToString(), out spawnX);
+                                if (warp.Properties.TryGetValue("spawnY", out var spawnYProp))
+                                    float.TryParse(spawnYProp.ToString(), out spawnY);
+
+                                // Cargar nuevo mapa
+                                _tiledMap = Content.Load<TiledMap>(targetMap);
+                                _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
+
+                                // Recargar todo lo demás (colisiones, objetos, warp zones)
+                                tileColliders.Clear();
+                                var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
+                                for (int y = 0; y < collisionLayer.Height; y++)
+                                    for (int x = 0; x < collisionLayer.Width; x++)
+                                    {
+                                        var tile = collisionLayer.GetTile((ushort)x, (ushort)y);
+                                        if (!tile.IsBlank)
+                                            tileColliders.Add(new Rectangle(
+                                                x * _tiledMap.TileWidth,
+                                                y * _tiledMap.TileHeight,
+                                                _tiledMap.TileWidth,
+                                                _tiledMap.TileHeight));
+                                    }
+
+                                var warpLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("Warps");
+                                warpZones = warpLayer?.Objects?.ToList() ?? new List<TiledMapObject>();
+
+                                JumpMan.Position = new Vector2(spawnX, spawnY);
+                                JumpMan.Velocity = Vector2.Zero;
+
+                                RegenerarObjetos();
+                                break;
+                            }
+                        }
+                    }
+                }
                 camera.Follow(JumpMan);
             }
 
