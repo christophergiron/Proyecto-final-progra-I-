@@ -1,5 +1,6 @@
 ﻿using Bit_Odyssey.Scripts;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -7,6 +8,7 @@ using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace JumpMan
 {
@@ -42,13 +44,13 @@ namespace JumpMan
         private Texture2D[] walkRightFrames;
         private Texture2D[] walkLeftFrames;
         private Texture2D[] idleFrames;
-        private int currentFrame;
+        private int currentFrame = 3; // idle4
         private double animationTimer;
         private double frameDuration = 0.1;
 
         private enum PlayerState { Idle, WalkingRight, WalkingLeft }
         private PlayerState currentState = PlayerState.Idle;
-
+      
         // Animaciones monedas
         private List<Texture2D> coinFrames;
 
@@ -104,8 +106,18 @@ namespace JumpMan
             Music.Load(Content);
             Music.PlayMusicOverWorld();
 
-            // Monedas
-            coinFrames = new List<Texture2D>();
+            // Que levante la mano to el que está haciendo dinero
+            //Que venga el Año Nuevo y yo voy a josearlo entero
+            //Un día de estos llega mi amor verdadero
+            //Pero, quiero hacerme rico primero
+           // Porque mañana yo no sé qué va a pasar
+            //Me siento triste, pero se me va a pasar, je
+            //Mi vida está cabrona, hey
+            //Yo no me quiero casar
+
+
+                        // Monedas
+                        coinFrames = new List<Texture2D>();
             for (int i = 1; i <= 9; i++)
                 coinFrames.Add(Content.Load<Texture2D>($"coin/goldCoin{i}"));
 
@@ -166,6 +178,11 @@ namespace JumpMan
                     }
                 }
             }
+
+            // Otro que se cae por la fuerza de gravedad
+            // Otro más por si sobrevive de casualidad
+            // Refuta mi tesis, cabrón, hoy te vamos a dar catequesis
+            // No he metido un gol y tengo cristianos orándole a Messi
 
             // Agregar monedas a la lista de monedas con sus posiciones, si las quieres generar dinámicamente
             coins.Add(new Coin(new Vector2(250, 300), coinFrames));
@@ -275,20 +292,21 @@ namespace JumpMan
             if (animationTimer >= frameDuration)
             {
                 animationTimer = 0;
-                currentFrame++;
+
                 switch (currentState)
                 {
                     case PlayerState.WalkingRight:
-                        currentFrame %= walkRightFrames.Length;
+                        currentFrame = (currentFrame + 1) % walkRightFrames.Length;
                         break;
                     case PlayerState.WalkingLeft:
-                        currentFrame %= walkLeftFrames.Length;
+                        currentFrame = (currentFrame + 1) % walkLeftFrames.Length;
                         break;
                     case PlayerState.Idle:
-                        currentFrame %= idleFrames.Length;
+                        currentFrame = 3; // idle4
                         break;
                 }
             }
+
 
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
