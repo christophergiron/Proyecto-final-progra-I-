@@ -138,6 +138,23 @@ namespace JumpMan
             font = Content.Load<SpriteFont>("DefaultFont");
         }
 
+        private Vector2 playerSpawnPoint()
+        {
+            var spawnerLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("ObjectSpawner");
+            if (spawnerLayer != null)
+            {
+                foreach (var obj in spawnerLayer.Objects)
+                {
+                    if (obj.Properties.TryGetValue("spawn", out var propValue) &&
+                        bool.TryParse(propValue.ToString(), out bool isSpawn) &&
+                        isSpawn)
+                    {
+                        return new Vector2(obj.Position.X, obj.Position.Y);
+                    }
+                }
+            }
+            return new Vector2(100, 300);
+        }
         public void RegenerarObjetos()
         {
             enemies = new List<Enemy>();
@@ -158,9 +175,11 @@ namespace JumpMan
                             case "Goomba":
                                 enemies.Add(new Goomba(spawnPos));
                                 break;
+
                             case "Koopa":
                                 enemies.Add(new Koopa(spawnPos));
                                 break;
+
                             case "Bloque_destruible":
                                 Rectangle rect = new Rectangle(
                                     (int)obj.Position.X,
@@ -169,6 +188,11 @@ namespace JumpMan
                                     (int)obj.Size.Height);
                                 blocks.Add(new BreakableBlock(rect));
                                 break;
+
+                            case "Coin":
+                                coins.Add(new Coin((spawnPos), coinFrames));
+                                break;
+
                             default:
                                 enemies.Add(new Goomba(spawnPos));
                                 break;
@@ -177,9 +201,11 @@ namespace JumpMan
                 }
             }
 
-            // Agregar monedas estáticas como prueba
-            coins.Add(new Coin(new Vector2(250, 300), coinFrames));
-            coins.Add(new Coin(new Vector2(280, 300), coinFrames));
+            // Otro que se cae por la fuerza de gravedad
+            // Otro más por si sobrevive de casualidad
+            // Refuta mi tesis, cabrón, hoy te vamos a dar catequesis
+            // No he metido un gol y tengo cristianos orándole a Messi
+
         }
 
         protected override void Update(GameTime gameTime)

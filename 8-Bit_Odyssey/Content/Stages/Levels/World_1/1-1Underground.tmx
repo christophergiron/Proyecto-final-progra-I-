@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="500" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="26">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="500" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="30">
  <tileset firstgid="1" source="../../Tilesets/TileSet Undeground/Under1.tsx"/>
  <tileset firstgid="33" source="../../Tilesets/TileSet Undeground/Under2.tsx"/>
  <tileset firstgid="43" source="../../Tilesets/TileSet Undeground/Under3.tsx"/>
@@ -44,4 +44,16 @@
 </data>
  </layer>
  <objectgroup id="3" name="ObjectSpawner"/>
+ <objectgroup id="5" name="Warps">
+  <object id="28" x="479.182" y="352.818" width="22" height="62.3636">
+   <properties>
+    <property name="warpTarget" value="Stages/Levels/World_1/Test32x"/>
+   </properties>
+  </object>
+  <object id="29" x="65.6364" y="18.5455" width="61.6364" height="13.8182">
+   <properties>
+    <property name="warpSpawn" type="int" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>
