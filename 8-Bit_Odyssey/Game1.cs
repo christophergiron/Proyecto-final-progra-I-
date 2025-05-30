@@ -42,13 +42,13 @@ namespace JumpMan
         private Texture2D[] walkRightFrames;
         private Texture2D[] walkLeftFrames;
         private Texture2D[] idleFrames;
-        private int currentFrame;
+        private int currentFrame = 3; // idle4
         private double animationTimer;
         private double frameDuration = 0.1;
 
         private enum PlayerState { Idle, WalkingRight, WalkingLeft }
         private PlayerState currentState = PlayerState.Idle;
-
+      
         // Animaciones monedas
         private List<Texture2D> coinFrames;
 
@@ -275,20 +275,21 @@ namespace JumpMan
             if (animationTimer >= frameDuration)
             {
                 animationTimer = 0;
-                currentFrame++;
+
                 switch (currentState)
                 {
                     case PlayerState.WalkingRight:
-                        currentFrame %= walkRightFrames.Length;
+                        currentFrame = (currentFrame + 1) % walkRightFrames.Length;
                         break;
                     case PlayerState.WalkingLeft:
-                        currentFrame %= walkLeftFrames.Length;
+                        currentFrame = (currentFrame + 1) % walkLeftFrames.Length;
                         break;
                     case PlayerState.Idle:
-                        currentFrame %= idleFrames.Length;
+                        currentFrame = 3; // idle4
                         break;
                 }
             }
+
 
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
