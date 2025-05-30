@@ -113,14 +113,14 @@ namespace Bit_Odyssey.Scripts
                 Music.PlayJumpFX();
             }
 
-            // Si se está manteniendo el salto
+            //salto mantenido
             if (keyboard.IsKeyDown(Keys.S) && jumpHeld)
             {
                 jumpTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
                 if (jumpTime < maxJumpTime)
                 {
-                    Velocity.Y -= 0.2f; // Ajusta este valor si quieres más o menos "flotabilidad"
+                    Velocity.Y -= 0.3f;
                 }
             }
             else
@@ -240,14 +240,14 @@ namespace Bit_Odyssey.Scripts
                 if (!Hitbox.Intersects(enemy.Hitbox)) continue;
 
                 Rectangle intersection = Rectangle.Intersect(Hitbox, enemy.Hitbox);
-                bool hitFromAbove = intersection.Height < intersection.Width && Velocity.Y > 0;
+                bool isAbove = this.Hitbox.Bottom <= enemy.Hitbox.Top + 5 && Velocity.Y > 1f;
 
                 if (enemy is Goomba)
                 {
-                    if (hitFromAbove)
+                    if (isAbove)
                     {
                         enemies.RemoveAt(i);
-                        Velocity.Y = -4.5f;
+                        Rebote();
                         Music.PlaySquishFX();
                         ScoreManager.AddPoints(200);
                     }
@@ -258,22 +258,23 @@ namespace Bit_Odyssey.Scripts
                 }
                 else if (enemy is Koopa k)
                 {
-                    if (hitFromAbove)
+                    if (isAbove)
                     {
-                        // Reutiliza lógica interna de Koopa
                         k.HandlePlayerCollision(this);
-                        Velocity.Y = -6f;
+                        Rebote();
                         Music.PlaySquishFX();
                     }
                     else
                     {
-                        // Si no es desde arriba, delega al Koopa
                         k.HandlePlayerCollision(this);
                     }
                 }
             }
         }
-
+        public void Rebote(float force = 6f)
+        {
+            Velocity.Y = -force;
+        }
         public void Die()
         {
             Position = new Vector2(100, 369);

@@ -20,7 +20,57 @@ namespace Bit_Odyssey.Scripts
 
         public override void Update(GameTime gameTime, List<Rectangle> tileColliders)
         {
-            base.Update(gameTime, tileColliders);
+            if (!IsOnGround)
+                Velocity.Y += gravity;
+
+            // Movimiento lateral
+            Velocity.X = movingLeft ? -1.0f : 1.0f;
+
+            // --- Colisión eje X ---
+            Position.X += Velocity.X;
+            Rectangle hitboxX = Hitbox;
+
+            foreach (var tile in tileColliders)
+            {
+                if (hitboxX.Intersects(tile))
+                {
+                    if (Velocity.X > 0)
+                        Position.X = tile.Left - hitboxX.Width;
+                    else if (Velocity.X < 0)
+                        Position.X = tile.Right;
+
+                    Velocity.X = 0;
+                    movingLeft = !movingLeft;
+                    break;
+                }
+            }
+
+            // --- Colisión eje Y ---
+            Position.Y += Velocity.Y;
+            Rectangle hitboxY = Hitbox;
+            IsOnGround = false;
+
+            foreach (var tile in tileColliders)
+            {
+                if (hitboxY.Intersects(tile))
+                {
+                    Rectangle intersection = Rectangle.Intersect(hitboxY, tile);
+                    if (intersection.Height < intersection.Width)
+                    {
+                        if (Velocity.Y > 0)
+                        {
+                            Position.Y = tile.Top - hitboxY.Height;
+                            Velocity.Y = 0;
+                            IsOnGround = true;
+                        }
+                        else if (Velocity.Y < 0)
+                        {
+                            Position.Y = tile.Bottom;
+                            Velocity.Y = 0;
+                        }
+                    }
+                }
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch)

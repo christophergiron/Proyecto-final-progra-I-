@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics.Eventing.Reader;
 
 namespace Bit_Odyssey.Scripts
 {
@@ -12,8 +13,15 @@ namespace Bit_Odyssey.Scripts
     {
         private float shellTimer = 0f;
         private const float shellMaxTime = 5f;
+        private float shellEntryCooldown = 0f;
+        private float bounceCooldown = 0f;
+        private const float bounceCooldownMax = 0.2f;
+
+        private int Direction = 0;
+
         public bool IsInShell { get; private set; } = false;
         public bool IsMovingShell { get; private set; } = false;
+
         public override Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
 
         public Koopa(Vector2 position)
@@ -29,6 +37,12 @@ namespace Bit_Odyssey.Scripts
             if (!IsOnGround)
                 Velocity.Y += gravity;
 
+            if (shellEntryCooldown > 0)
+                shellEntryCooldown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (bounceCooldown > 0)
+                bounceCooldown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             if (!IsInShell)
             {
                 shellTimer = 0f;
@@ -42,6 +56,10 @@ namespace Bit_Odyssey.Scripts
                 {
                     ExitShell();
                 }
+            }
+            else
+            {
+                Velocity.X = 5f * Direction;
             }
 
             Position.X += Velocity.X;
@@ -60,7 +78,7 @@ namespace Bit_Odyssey.Scripts
                         movingLeft = !movingLeft;
 
                     if (IsMovingShell)
-                        Velocity.X *= -1;
+                        Direction *= -1;
 
                     break;
                 }
@@ -98,15 +116,15 @@ namespace Bit_Odyssey.Scripts
             if (!player.Hitbox.Intersects(Hitbox)) return;
 
             Rectangle intersection = Rectangle.Intersect(player.Hitbox, Hitbox);
-
-            bool isFromAbove = intersection.Height < intersection.Width && player.Velocity.Y >= 2f;
+            bool isFromAbove = player.Hitbox.Bottom <= this.Hitbox.Top + 10;
 
             if (!IsInShell)
             {
                 if (isFromAbove)
                 {
                     EnterShell();
-                    player.Velocity = new Vector2(player.Velocity.X, -5); 
+                    shellEntryCooldown = 0.2f;
+                    player.Velocity = new Vector2(player.Velocity.X, -5f);
                 }
                 else
                 {
@@ -115,22 +133,40 @@ namespace Bit_Odyssey.Scripts
             }
             else
             {
-                if (IsMovingShell)
+                if (shellEntryCooldown > 0)
+                    return;
+
+                if (isFromAbove)
                 {
-                    if (isFromAbove)
+                    if (!IsMovingShell && bounceCooldown <= 0f)
+                    {
+                        int dir = player.Position.X < Position.X ? 1 : -1;
+                        KickShell(dir);
+                        player.Velocity = new Vector2(player.Velocity.X, -6f);
+                        player.Position.X -= dir * 5;
+                        bounceCooldown = bounceCooldownMax;
+                    }
+                    else if (IsMovingShell && bounceCooldown <= 0f)
                     {
                         StopShell();
-                        player.Velocity = new Vector2(player.Velocity.X, -5);
-                    }
-                    else
-                    {
-                        player.Die();
+                        player.Velocity = new Vector2(player.Velocity.X, -6f);
+                        player.Position.X -= (player.Position.X < Position.X ? 1 : -1) * 5;
+                        shellTimer = 0f;
+                        bounceCooldown = bounceCooldownMax;
                     }
                 }
                 else
                 {
-                    int direction = player.Position.X < Position.X ? 1 : -1;
-                    KickShell(direction);
+                    if (IsMovingShell)
+                    {
+                        player.Die();
+                    }
+                    else
+                    {
+                        int dir = player.Position.X < Position.X ? 1 : -1;
+                        KickShell(dir);
+                        player.Position.X -= dir * 10;
+                    }
                 }
             }
         }
@@ -158,6 +194,7 @@ namespace Bit_Odyssey.Scripts
             IsMovingShell = false;
             Velocity = Vector2.Zero;
         }
+
         public void ExitShell()
         {
             IsInShell = false;
@@ -165,9 +202,11 @@ namespace Bit_Odyssey.Scripts
             shellTimer = 0f;
             Velocity.X = -1.0f;
         }
+
         public void KickShell(int direction)
         {
             IsMovingShell = true;
+            Direction = direction;
             Velocity = new Vector2(5 * direction, 0);
         }
 
