@@ -102,6 +102,8 @@ namespace JumpMan
             for (int i = 0; i < 6; i++)
                 idleFrames[i] = Content.Load<Texture2D>($"Personaje/idle{i + 1}");
 
+
+
             // Música
             Music.Load(Content);
             Music.PlayMusicOverWorld();
@@ -288,24 +290,32 @@ namespace JumpMan
             else
                 currentState = PlayerState.Idle;
 
-            animationTimer += gameTime.ElapsedGameTime.TotalSeconds;
-            if (animationTimer >= frameDuration)
+            switch (currentState)
             {
-                animationTimer = 0;
-
-                switch (currentState)
-                {
-                    case PlayerState.WalkingRight:
+                case PlayerState.WalkingRight:
+                    animationTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (animationTimer >= frameDuration)
+                    {
+                        animationTimer = 0;
                         currentFrame = (currentFrame + 1) % walkRightFrames.Length;
-                        break;
-                    case PlayerState.WalkingLeft:
+                    }
+                    break;
+
+                case PlayerState.WalkingLeft:
+                    animationTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (animationTimer >= frameDuration)
+                    {
+                        animationTimer = 0;
                         currentFrame = (currentFrame + 1) % walkLeftFrames.Length;
-                        break;
-                    case PlayerState.Idle:
-                        currentFrame = 3; // idle4
-                        break;
-                }
+                    }
+                    break;
+
+                case PlayerState.Idle:
+                    currentFrame = 4; // idle4 (solo una vez, no cada frame)
+                    animationTimer = 0; // Reinicia el timer para evitar animación fantasma
+                    break;
             }
+
 
 
             _tiledMapRenderer.Update(gameTime);
