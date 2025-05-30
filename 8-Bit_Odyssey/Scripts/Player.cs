@@ -14,7 +14,7 @@ namespace Bit_Odyssey.Scripts
         public Vector2 Position;
         public Vector2 Velocity;
         private float gravity = 0.4f;
-        private float jumpForce = -7f;
+        private float jumpForce = -8f;
         private bool jumpHeld = false;
         private float jumpTime = 0f;
         private float maxJumpTime = 0.25f;
@@ -120,7 +120,7 @@ namespace Bit_Odyssey.Scripts
 
                 if (jumpTime < maxJumpTime)
                 {
-                    Velocity.Y -= 0.4f; // Ajusta este valor si quieres más o menos "flotabilidad"
+                    Velocity.Y -= 0.2f; // Ajusta este valor si quieres más o menos "flotabilidad"
                 }
             }
             else
@@ -239,12 +239,15 @@ namespace Bit_Odyssey.Scripts
                 Enemy enemy = enemies[i];
                 if (!Hitbox.Intersects(enemy.Hitbox)) continue;
 
+                Rectangle intersection = Rectangle.Intersect(Hitbox, enemy.Hitbox);
+                bool hitFromAbove = intersection.Height < intersection.Width && Velocity.Y > 0;
+
                 if (enemy is Goomba)
                 {
-                    if (Velocity.Y > 0)
+                    if (hitFromAbove)
                     {
                         enemies.RemoveAt(i);
-                        Velocity.Y = jumpForce / 2;
+                        Velocity.Y = -4.5f;
                         Music.PlaySquishFX();
                         ScoreManager.AddPoints(200);
                     }
@@ -255,8 +258,18 @@ namespace Bit_Odyssey.Scripts
                 }
                 else if (enemy is Koopa k)
                 {
-                    k.HandlePlayerCollision(this);
-                    Music.PlaySquishFX();
+                    if (hitFromAbove)
+                    {
+                        // Reutiliza lógica interna de Koopa
+                        k.HandlePlayerCollision(this);
+                        Velocity.Y = -6f;
+                        Music.PlaySquishFX();
+                    }
+                    else
+                    {
+                        // Si no es desde arriba, delega al Koopa
+                        k.HandlePlayerCollision(this);
+                    }
                 }
             }
         }

@@ -99,18 +99,18 @@ namespace Bit_Odyssey.Scripts
 
             Rectangle intersection = Rectangle.Intersect(player.Hitbox, Hitbox);
 
-            bool isFromAbove = intersection.Height < intersection.Width && player.Velocity.Y > 0;
+            bool isFromAbove = intersection.Height < intersection.Width && player.Velocity.Y >= 2f;
 
             if (!IsInShell)
             {
                 if (isFromAbove)
                 {
                     EnterShell();
-                    player.Velocity = new Vector2(player.Velocity.X, -5); // rebote
+                    player.Velocity = new Vector2(player.Velocity.X, -5); 
                 }
                 else
                 {
-                    player.Die(); // Te mata si lo tocas de lado cuando no está en shell
+                    player.Die();
                 }
             }
             else
@@ -119,17 +119,16 @@ namespace Bit_Odyssey.Scripts
                 {
                     if (isFromAbove)
                     {
-                        StopShell(); // Rebote + detiene el caparazón
+                        StopShell();
                         player.Velocity = new Vector2(player.Velocity.X, -5);
                     }
                     else
                     {
-                        player.Die(); // Te mata si tocas el caparazón en movimiento de lado
+                        player.Die();
                     }
                 }
                 else
                 {
-                    // Si no está en movimiento, lo patea desde el lado
                     int direction = player.Position.X < Position.X ? 1 : -1;
                     KickShell(direction);
                 }
