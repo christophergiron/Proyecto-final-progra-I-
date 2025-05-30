@@ -3,16 +3,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using MonoGame.Extended.Collections;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Reflection;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace JumpMan
 {
@@ -20,32 +14,43 @@ namespace JumpMan
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
         private Player JumpMan;
         private List<Enemy> enemies;
         private List<Block> blocks;
+        private List<Coin> coins;
+        private List<Rectangle> tileColliders;
+
         private int lives = 3;
         private bool isGameOver = false;
         private double gameTimer = 400;
         private bool musicSpedUp = false;
+
         private SpriteFont font;
         private Texture2D whiteTexture;
+
         private Camera camera;
+        private DemoPlayer demoPlayer;
         private bool useDemoPlayer = false;
-        private List<Coin> coins;
-        private List<Rectangle> tileColliders;
+
         private static TiledMap _tiledMap;
         private static TiledMapRenderer _tiledMapRenderer;
-        private DemoPlayer demoPlayer;
-        private Music musicManager;
-        private List<Texture2D> coinFrames;//moneda
 
-        // Animación del jugador
-        private Texture2D[] walkFrames;
+        private Music musicManager;
+
+        // Animaciones jugador
+        private Texture2D[] walkRightFrames;
+        private Texture2D[] walkLeftFrames;
+        private Texture2D[] idleFrames;
         private int currentFrame;
         private double animationTimer;
         private double frameDuration = 0.1;
-        private Texture2D jumpManTexture;
 
+        private enum PlayerState { Idle, WalkingRight, WalkingLeft }
+        private PlayerState currentState = PlayerState.Idle;
+
+        // Animaciones monedas
+        private List<Texture2D> coinFrames;
 
         public Game1()
         {
@@ -56,13 +61,7 @@ namespace JumpMan
 
         protected override void Initialize()
         {
-            blocks = new List<Block>
-            {
-                //new BreakableBlock(new Rectangle(200, 300, 32, 32)),
-            };
-            
-
-
+            blocks = new List<Block>();
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
             musicManager = new Music();
 
@@ -75,82 +74,60 @@ namespace JumpMan
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
 
-            jumpManTexture = Content.Load<Texture2D>("Personaje/walk1");
-
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
             _tiledMapRenderer = new TiledMapRenderer(GraphicsDevice, _tiledMap);
 
-            // Carga las colisiones principales
+            // Carga colisiones tiles
             tileColliders = new List<Rectangle>();
             var collisionLayer = _tiledMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
-
             for (int y = 0; y < collisionLayer.Height; y++)
-            {
                 for (int x = 0; x < collisionLayer.Width; x++)
                 {
                     var tile = collisionLayer.GetTile((ushort)x, (ushort)y);
                     if (!tile.IsBlank)
-                    {
-                        tileColliders.Add(new Rectangle(
-                            x * _tiledMap.TileWidth,
-                            y * _tiledMap.TileHeight,
-                            _tiledMap.TileWidth,
-                            _tiledMap.TileHeight
-                        ));
-                    }
+                        tileColliders.Add(new Rectangle(x * _tiledMap.TileWidth, y * _tiledMap.TileHeight, _tiledMap.TileWidth, _tiledMap.TileHeight));
                 }
-            }
 
-            walkFrames = new Texture2D[6];
+            // Carga animaciones jugador
+            walkRightFrames = new Texture2D[6];
+            walkLeftFrames = new Texture2D[6];
+            idleFrames = new Texture2D[6];
             for (int i = 0; i < 6; i++)
             {
-                walkFrames[i] = Content.Load<Texture2D>($"Personaje/walk{i + 1}");
+                walkRightFrames[i] = Content.Load<Texture2D>($"Personaje/walk{i + 1}");
+                walkLeftFrames[i] = Content.Load<Texture2D>($"Personaje/walk{i + 1}l");
             }
+            for (int i = 0; i < 6; i++)
+                idleFrames[i] = Content.Load<Texture2D>($"Personaje/idle{i + 1}");
 
+            // Música
             Music.Load(Content);
             Music.PlayMusicOverWorld();
-            RegenerarObjetos();
 
-            //moneda
+            // Monedas
             coinFrames = new List<Texture2D>();
             for (int i = 1; i <= 9; i++)
-            {
                 coinFrames.Add(Content.Load<Texture2D>($"coin/goldCoin{i}"));
-            }
 
-            coins = new List<Coin>
-            {
-            new Coin(new Vector2(250, 300), coinFrames),
-            new Coin(new Vector2(280, 300), coinFrames)
-            };
+            RegenerarObjetos();
 
-
-            // Se crea el player y demoplayer  logica del game over 
             JumpMan = new Player(new Vector2(100, 300), () =>
             {
                 lives--;
-
                 gameTimer = 400;
-
                 if (lives <= 0)
-                {
                     isGameOver = true;
-                }
                 else
                 {
                     JumpMan.Position = new Vector2(100, 300);
                     JumpMan.Velocity = Vector2.Zero;
                 }
-
                 RegenerarObjetos();
             });
-            //carga el archivo de fuentes temporal
+
             font = Content.Load<SpriteFont>("DefaultFont");
-            // Solo activas esto si estás en el menú
-            // demoPlayer = new DemoPlayer(new Vector2(100, 369));
         }
 
-        //encargado de leer a los objetos y cargarlos
         public void RegenerarObjetos()
         {
             enemies = new List<Enemy>();
@@ -166,57 +143,48 @@ namespace JumpMan
 
                     if (obj.Properties.TryGetValue("objectType", out var typeProp))
                     {
-                        string type = typeProp.ToString();
                         switch (typeProp)
                         {
                             case "Goomba":
                                 enemies.Add(new Goomba(spawnPos));
                                 break;
-
                             case "Koopa":
                                 enemies.Add(new Koopa(spawnPos));
                                 break;
-
                             case "Bloque_destruible":
                                 Rectangle rect = new Rectangle(
                                     (int)obj.Position.X,
                                     (int)(obj.Position.Y - obj.Size.Height),
                                     (int)obj.Size.Width,
-                                    (int)obj.Size.Height
-                                );
-
+                                    (int)obj.Size.Height);
                                 blocks.Add(new BreakableBlock(rect));
-                                break;  
-                                            
-                            //case "Moneda":
-                                //coins.Add(new Coin(spawnPos), coinFrames);
-                                //break;
-
+                                break;
                             default:
-                                //coloca bien los objetos
                                 enemies.Add(new Goomba(spawnPos));
                                 break;
                         }
                     }
                 }
             }
+
+            // Agregar monedas a la lista de monedas con sus posiciones, si las quieres generar dinámicamente
+            coins.Add(new Coin(new Vector2(250, 300), coinFrames));
+            coins.Add(new Coin(new Vector2(280, 300), coinFrames));
         }
 
         private List<float> DemoPlayerCords()
         {
             List<float> puntos = new List<float>();
 
-            var layer = _tiledMap.GetLayer<TiledMapObjectLayer>("DemoJumpPoints"); //capa de objetos que se busca
+            var layer = _tiledMap.GetLayer<TiledMapObjectLayer>("DemoJumpPoints");
             if (layer != null)
             {
                 foreach (var obj in layer.Objects)
                 {
-                    puntos.Add(obj.Position.X); //usamos los puntos insertados en el mapa
+                    puntos.Add(obj.Position.X);
                 }
-
                 puntos.Sort();
             }
-
             return puntos;
         }
 
@@ -226,8 +194,7 @@ namespace JumpMan
 
             if (isGameOver)
             {
-                // reinicia luego del game over temporal
-                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+                if (keyboard.IsKeyDown(Keys.Enter))
                 {
                     lives = 3;
                     isGameOver = false;
@@ -239,33 +206,27 @@ namespace JumpMan
                 }
                 return;
             }
+
             if (!useDemoPlayer && !isGameOver)
             {
                 gameTimer -= gameTime.ElapsedGameTime.TotalSeconds;
-
                 if (gameTimer <= 0 && !JumpMan.isRespawning)
-                {
                     JumpMan.Die();
-                }
             }
 
             if (gameTimer <= 100 && !musicSpedUp)
             {
-                //musica rapida //mete aqui la musica acelerada miguel
                 musicSpedUp = true;
+                // Aquí puedes acelerar la música
             }
 
             if (keyboard.IsKeyDown(Keys.Tab))
             {
-                //descomenta esto jose cuando tengas lo de tiled
-                if (keyboard.IsKeyDown(Keys.Tab))
+                useDemoPlayer = true;
+                if (demoPlayer == null)
                 {
-                    useDemoPlayer = true;
-                    if (demoPlayer == null)
-                    {
-                        var puntosDeSalto = DemoPlayerCords();
-                        demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarObjetos, puntosDeSalto);
-                    }
+                    var puntosDeSalto = DemoPlayerCords();
+                    demoPlayer = new DemoPlayer(new Vector2(100, 369), RegenerarObjetos, puntosDeSalto);
                 }
             }
             else if (keyboard.IsKeyDown(Keys.Enter))
@@ -284,10 +245,13 @@ namespace JumpMan
                 JumpMan.Update(gameTime, keyboard);
                 JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
+
                 foreach (var coin in coins)
-                    coin.Update(JumpMan , gameTime);//coin
+                    coin.Update(JumpMan, gameTime);
+
                 camera.Follow(JumpMan);
             }
+
             if (!JumpMan.isRespawning)
             {
                 foreach (var enemy in enemies)
@@ -299,18 +263,38 @@ namespace JumpMan
                     koopa.HandleShellCollisions(enemies);
             }
 
+            // Control animación jugador
+            if (JumpMan.Velocity.X > 0.1f)
+                currentState = PlayerState.WalkingRight;
+            else if (JumpMan.Velocity.X < -0.1f)
+                currentState = PlayerState.WalkingLeft;
+            else
+                currentState = PlayerState.Idle;
+
             animationTimer += gameTime.ElapsedGameTime.TotalSeconds;
             if (animationTimer >= frameDuration)
             {
-                currentFrame = (currentFrame + 1) % walkFrames.Length;
                 animationTimer = 0;
+                currentFrame++;
+                switch (currentState)
+                {
+                    case PlayerState.WalkingRight:
+                        currentFrame %= walkRightFrames.Length;
+                        break;
+                    case PlayerState.WalkingLeft:
+                        currentFrame %= walkLeftFrames.Length;
+                        break;
+                    case PlayerState.Idle:
+                        currentFrame %= idleFrames.Length;
+                        break;
+                }
             }
 
             _tiledMapRenderer.Update(gameTime);
             base.Update(gameTime);
             Music.Update(gameTime);
         }
-        //se dibuja al demo player temporalmente como un cubo rosa para pruebas y si no se activa el demo se activa el dibujado del sprite de player 
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
@@ -318,11 +302,6 @@ namespace JumpMan
 
             _tiledMapRenderer.Draw(camera.GetViewMatrix());
 
-            // Dibuja al jugador 
-            //Texture2D currentTexture = walkFrames[currentFrame];
-            //_spriteBatch.Draw(currentTexture, 
-            //    new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
-            //    Color.White);
             if (useDemoPlayer && demoPlayer != null)
             {
                 _spriteBatch.Draw(whiteTexture,
@@ -335,13 +314,20 @@ namespace JumpMan
             }
             else
             {
-                Texture2D currentTexture = walkFrames[currentFrame];
+                Texture2D currentTexture = currentState switch
+                {
+                    PlayerState.WalkingRight => walkRightFrames[currentFrame],
+                    PlayerState.WalkingLeft => walkLeftFrames[currentFrame],
+                    PlayerState.Idle => idleFrames[currentFrame],
+                    _ => idleFrames[0]
+                };
+
                 _spriteBatch.Draw(currentTexture,
                     new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
                     Color.White);
             }
 
-            // Dibuja enemigos con colores según su estado placeholder temporal
+            // Dibuja enemigos
             foreach (var enemy in enemies)
             {
                 Color color = Color.Green;
@@ -354,24 +340,26 @@ namespace JumpMan
                     color);
             }
 
-            // Dibuja bloques destruibles placeholder temporal
+            // Dibuja bloques
             foreach (var block in blocks)
                 block.Draw(_spriteBatch, whiteTexture, camera.Position);
-            //dibuja las monedas placeholder temporal
+
+            // Dibuja monedas
             foreach (var coin in coins)
-                coin.Draw(_spriteBatch, camera.Position);//coin
-            //dibuja las vidas y tiempo Temporal 
-            _spriteBatch.DrawString(font, $"Vidas: {lives}", new Vector2(10, 70), Color.White);
-            _spriteBatch.DrawString(font, $"Tiempo: {Math.Ceiling(gameTimer)}", new Vector2(10, 40), Color.White);
+                coin.Draw(_spriteBatch, camera.Position);
+
+            // Dibuja HUD
+            _spriteBatch.DrawString(font, $"Vidas: {lives}", new Vector2(10, 10), Color.Black);
+            _spriteBatch.DrawString(font, $"Tiempo: {Math.Round(gameTimer, 2)}", new Vector2(10, 30), Color.Black);
 
             if (isGameOver)
             {
-                _spriteBatch.DrawString(font, "GAME OVER", new Vector2(200, 200), Color.Red);
-                _spriteBatch.DrawString(font, "Presiona ENTER para reiniciar", new Vector2(180, 230), Color.Yellow);
+                _spriteBatch.DrawString(font, "GAME OVER - Presiona Enter para reiniciar",
+                    new Vector2(150, 300), Color.Red);
             }
+
             _spriteBatch.End();
             base.Draw(gameTime);
         }
     }
 }
-

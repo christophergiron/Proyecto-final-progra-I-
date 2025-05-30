@@ -2,13 +2,9 @@
 using Bit_Odyssey;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Audio;
-using System.Reflection.Metadata;
 using Bit_Odyssey.Scripts;
 
 namespace Bit_Odyssey.Scripts
@@ -25,27 +21,37 @@ namespace Bit_Odyssey.Scripts
         private double respawnTimer = 0;
         private const double respawnDelay = 2.0;
         public Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
-        public bool IsRespawning()
-        {
-            return isRespawning;
-        }
-
         private Action onDeathCallback;
+
+        // Animación
+        private Dictionary<string, List<Texture2D>> animations;
+        private string currentAnimation = "idle";
+        private int frameIndex = 0;
+        private double frameTimer = 0;
+        private double frameInterval = 0.1; // segundos por frame
+        private SpriteEffects spriteEffect = SpriteEffects.None;
 
         public Player(Vector2 position, Action onDeath = null)
         {
             Position = position;
             onDeathCallback = onDeath;
         }
-        //fisicas y logica de player 
+
+        public void LoadAnimations(Dictionary<string, List<Texture2D>> anims)
+        {
+            animations = anims;
+        }
+
+        public bool IsRespawning() => isRespawning;
+
         public void Update(GameTime gameTime, KeyboardState keyboard)
         {
             float acceleration = 0.15f;
             float deceleration = 0.1f;
             float maxSpeed = 6f;
             float walkSpeed = 3f;
-            float targetSpeed =  keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
-            //controla el tiempo de respawn
+            float targetSpeed = keyboard.IsKeyDown(Keys.A) ? maxSpeed : walkSpeed;
+
             if (isRespawning)
             {
                 respawnTimer -= gameTime.ElapsedGameTime.TotalSeconds;
@@ -55,43 +61,46 @@ namespace Bit_Odyssey.Scripts
                 }
                 return;
             }
-            //maneja el movimiento lateral del player 
+
+            // Movimiento horizontal y animaciones
+            bool moving = false;
+
             if (keyboard.IsKeyDown(Keys.Left))
             {
                 Velocity.X -= acceleration;
-                if (Velocity.X < -targetSpeed)
-                {
-                    Velocity.X = -targetSpeed;
-                }
+                if (Velocity.X < -targetSpeed) Velocity.X = -targetSpeed;
+                currentAnimation = "walk_left";
+                spriteEffect = SpriteEffects.None;
+                moving = true;
             }
             else if (keyboard.IsKeyDown(Keys.Right))
             {
                 Velocity.X += acceleration;
-                if (Velocity.X > targetSpeed)
-                {
-                    Velocity.X = targetSpeed;
-                }
+                if (Velocity.X > targetSpeed) Velocity.X = targetSpeed;
+                currentAnimation = "walk_right";
+                spriteEffect = SpriteEffects.None;
+                moving = true;
             }
             else
             {
                 if (Velocity.X > 0)
                 {
                     Velocity.X -= deceleration;
-                    if (Velocity.X < 0)
-                    {
-                        Velocity.X = 0;
-                    }
+                    if (Velocity.X < 0) Velocity.X = 0;
                 }
                 else if (Velocity.X < 0)
                 {
                     Velocity.X += deceleration;
-                    if (Velocity.X > 0)
-                    {
-                        Velocity.X = 0;
-                    }
+                    if (Velocity.X > 0) Velocity.X = 0;
+                }
+
+                if (!moving)
+                {
+                    currentAnimation = "idle";
                 }
             }
-            //maneja el salto de player
+
+            // Salto
             if (keyboard.IsKeyDown(Keys.S) && IsOnGround)
             {
                 Velocity.Y = jumpForce;
@@ -104,16 +113,27 @@ namespace Bit_Odyssey.Scripts
                 Velocity.Y += gravity;
             }
 
-
             if (Position.Y > fallLimit)
             {
                 Die();
             }
+
+            // Animación por tiempo
+            frameTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            if (frameTimer >= frameInterval)
+            {
+                frameTimer = 0;
+                frameIndex++;
+                if (animations != null && animations.ContainsKey(currentAnimation))
+                {
+                    if (frameIndex >= animations[currentAnimation].Count)
+                        frameIndex = 0;
+                }
+            }
         }
-        //Se encarga de las colisiones e interaccion con bloques
+
         public void CheckCollisions(List<Rectangle> tileColliders, List<Block> blocks)
         {
-            // Movimiento horizontal
             Position.X += Velocity.X;
             Rectangle hitboxX = Hitbox;
 
@@ -133,7 +153,6 @@ namespace Bit_Odyssey.Scripts
             foreach (var block in blocks)
             {
                 if (block.IsBroken) continue;
-
                 if (hitboxX.Intersects(block.Bounds))
                 {
                     if (Velocity.X > 0)
@@ -145,7 +164,6 @@ namespace Bit_Odyssey.Scripts
                 }
             }
 
-            // Movimiento vertical
             Position.Y += Velocity.Y;
             Rectangle hitboxY = Hitbox;
             IsOnGround = false;
@@ -171,42 +189,35 @@ namespace Bit_Odyssey.Scripts
             foreach (var block in blocks)
             {
                 if (block.IsBroken) continue;
-
                 if (hitboxY.Intersects(block.Bounds))
                 {
                     if (Velocity.Y > 0)
                     {
-                        // Colisión desde arriba
                         Position.Y = block.Bounds.Top - hitboxY.Height;
                         IsOnGround = true;
                         Velocity.Y = 0;
                     }
                     else if (Velocity.Y < 0)
                     {
-                        // Golpe desde abajo: romper el bloque
                         Rectangle head = new Rectangle(Hitbox.X, Hitbox.Y - 2, Hitbox.Width, 5);
                         if (head.Intersects(block.Bounds) && block.IsSolid)
                         {
                             block.OnHit(this);
                         }
-
                         Position.Y = block.Bounds.Bottom;
                         Velocity.Y = 0;
                     }
-
                     hitboxY = Hitbox;
                 }
             }
         }
 
-        //maneja la interaccion con los enemigos 
         public void CheckEnemyCollisions(List<Enemy> enemies)
         {
             for (int i = enemies.Count - 1; i >= 0; i--)
             {
                 Enemy enemy = enemies[i];
-                if (!Hitbox.Intersects(enemy.Hitbox))
-                    continue;
+                if (!Hitbox.Intersects(enemy.Hitbox)) continue;
 
                 if (enemy is Goomba)
                 {
@@ -229,7 +240,7 @@ namespace Bit_Odyssey.Scripts
                 }
             }
         }
-        //maneja la muerte del player
+
         public void Die()
         {
             Position = new Vector2(100, 369);
@@ -242,6 +253,15 @@ namespace Bit_Odyssey.Scripts
             Music.PlayDieFX();
             Music.ResetMusic((float)Music.fxDie.Duration.TotalSeconds);
             Console.WriteLine($" Game Over - Puntos: {ScoreManager.Points} | Monedas: {ScoreManager.Coins}");
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            if (animations != null && animations.ContainsKey(currentAnimation))
+            {
+                Texture2D currentFrame = animations[currentAnimation][frameIndex];
+                spriteBatch.Draw(currentFrame, Position, null, Color.White, 0f, Vector2.Zero, 1f, spriteEffect, 0f);
+            }
         }
     }
 }
