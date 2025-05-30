@@ -18,7 +18,7 @@ namespace Bit_Odyssey.Scripts
         private bool jumpHeld = false;
         private float jumpTime = 0f;
         private float maxJumpTime = 0.25f;
-        protected bool IsOnGround;
+        public bool IsOnGround;
         private float fallLimit = 600;
         public bool isRespawning = false;
         private double respawnTimer = 0;
