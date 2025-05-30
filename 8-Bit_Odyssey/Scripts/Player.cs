@@ -284,8 +284,8 @@ namespace Bit_Odyssey.Scripts
 
             onDeathCallback?.Invoke();
             Music.StopMusic();
-            Music.PlayDieFX();
-            Music.ResetMusic((float)Music.fxDie.Duration.TotalSeconds);
+            Music.PlayDeath();
+            Music.ResetMusic((float)Music.death.Duration.TotalSeconds);
             Console.WriteLine($" Game Over - Puntos: {ScoreManager.Points} | Monedas: {ScoreManager.Coins}");
         }
 

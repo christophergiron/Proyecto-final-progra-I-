@@ -135,17 +135,41 @@
 /processorParam:Quality=Best
 /build:Music/Clear.ogg
 
+#begin Music/Death.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Death.ogg
+
+#begin Music/Gameover.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Gameover.ogg
+
 #begin Music/Overworld.ogg
 /importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/Overworld.ogg
 
+#begin Music/Overworldspeedup.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Overworldspeedup.ogg
+
 #begin Music/Underground.ogg
 /importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/Underground.ogg
+
+#begin Music/Undergroundspeedup.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Undergroundspeedup.ogg
 
 #begin Personaje/idle1.png
 /importer:TextureImporter
@@ -315,18 +339,6 @@
 /processorParam:TextureFormat=Color
 /build:Personaje/walk4.png
 
-#begin Personaje/walk4.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Personaje/walk4.png
-
 #begin Personaje/walk4l.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -390,14 +402,44 @@
 #begin SoundFX/1up.wav
 /copy:SoundFX/1up.wav
 
+#begin SoundFX/1up.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/1up.wav
+
 #begin SoundFX/Beep.wav
 /copy:SoundFX/Beep.wav
+
+#begin SoundFX/Beep.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Beep.wav
 
 #begin SoundFX/Big Jump.wav
 /copy:SoundFX/Big Jump.wav
 
+#begin SoundFX/Big Jump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Big Jump.wav
+
 #begin SoundFX/Bowser Die.wav
 /copy:SoundFX/Bowser Die.wav
+
+#begin SoundFX/Bowser Die.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Bowser Die.wav
+
+#begin SoundFX/Break.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Break.wav
 
 #begin SoundFX/Break.wav
 /importer:WavImporter
@@ -408,11 +450,35 @@
 #begin SoundFX/Bump.wav
 /copy:SoundFX/Bump.wav
 
+#begin SoundFX/Bump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Bump.wav
+
 #begin SoundFX/Coin.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:SoundFX/Coin.wav
+
+#begin SoundFX/Coin.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Coin.wav
+
+#begin SoundFX/Death.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Death.wav
+
+#begin SoundFX/Die.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Die.wav
 
 #begin SoundFX/Die.wav
 /importer:WavImporter
@@ -423,17 +489,53 @@
 #begin SoundFX/Enemy Fire.wav
 /copy:SoundFX/Enemy Fire.wav
 
+#begin SoundFX/Enemy Fire.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Enemy Fire.wav
+
 #begin SoundFX/Fire Ball.wav
 /copy:SoundFX/Fire Ball.wav
+
+#begin SoundFX/Fire Ball.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Fire Ball.wav
 
 #begin SoundFX/Flagpole.wav
 /copy:SoundFX/Flagpole.wav
 
+#begin SoundFX/Flagpole.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Flagpole.wav
+
 #begin SoundFX/Game Over.wav
 /copy:SoundFX/Game Over.wav
 
+#begin SoundFX/Game Over.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Game Over.wav
+
 #begin SoundFX/Item.wav
 /copy:SoundFX/Item.wav
+
+#begin SoundFX/Item.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Item.wav
+
+#begin SoundFX/Jump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Jump.wav
 
 #begin SoundFX/Jump.wav
 /importer:WavImporter
@@ -444,14 +546,44 @@
 #begin SoundFX/Kick.wav
 /copy:SoundFX/Kick.wav
 
+#begin SoundFX/Kick.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Kick.wav
+
 #begin SoundFX/Pause.wav
 /copy:SoundFX/Pause.wav
+
+#begin SoundFX/Pause.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Pause.wav
 
 #begin SoundFX/Powerup.wav
 /copy:SoundFX/Powerup.wav
 
+#begin SoundFX/Powerup.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Powerup.wav
+
 #begin SoundFX/Skid.wav
 /copy:SoundFX/Skid.wav
+
+#begin SoundFX/Skid.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Skid.wav
+
+#begin SoundFX/Squish.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Squish.wav
 
 #begin SoundFX/Squish.wav
 /importer:WavImporter
@@ -462,11 +594,29 @@
 #begin SoundFX/Thwomp.wav
 /copy:SoundFX/Thwomp.wav
 
+#begin SoundFX/Thwomp.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Thwomp.wav
+
 #begin SoundFX/Vine.wav
 /copy:SoundFX/Vine.wav
 
+#begin SoundFX/Vine.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Vine.wav
+
 #begin SoundFX/Warp.wav
 /copy:SoundFX/Warp.wav
+
+#begin SoundFX/Warp.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundFX/Warp.wav
 
 #begin Stages/Levels/World_1/Test32x.tmx
 /importer:TiledMapImporter

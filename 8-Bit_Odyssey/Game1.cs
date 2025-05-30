@@ -130,7 +130,10 @@ namespace JumpMan
                 lives--;
                 gameTimer = 400;
                 if (lives <= 0)
+                {
                     isGameOver = true;
+                    Music.PlayGameover();
+                }
                 else
                 {
                     JumpMan.Position = new Vector2(100, 300);
@@ -236,6 +239,8 @@ namespace JumpMan
             if (gameTimer <= 100 && !musicSpedUp)
             {
                 musicSpedUp = true;
+                Music.PlayMusicOverworldSpeed();
+               
                 // Aquí puedes acelerar la música
             }
 

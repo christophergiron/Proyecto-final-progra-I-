@@ -24,7 +24,7 @@ namespace Bit_Odyssey.Scripts
         public override void OnHit(Player player)
         {
             _isBroken = true;
-            Music.PlayBreakFX();// ahi quitan el comentario, que no se les olvide porque no lo puedo comprobar si no hay para romper
+            Music.PlayBreakFX();
         }
 
         public override void Draw(SpriteBatch spriteBatch, Texture2D texture, Vector2 cameraPosition)
