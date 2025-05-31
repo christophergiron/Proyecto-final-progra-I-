@@ -25,12 +25,14 @@ namespace JumpMan
         private List<Coin> coins;
         private List<TiledMapObject> warpZones;
         private List<Rectangle> tileColliders;
-        private List<Goal> goals;        //la meta
+        private List<Goal> goals;
 
         private int lives = 3;
         private bool isGameOver = false;
-        private double gameTimer = 400;
+        private double gameTimer = 110;
         private bool musicSpedUp = false;
+        private bool isPaused = false;
+        private KeyboardState previousKeyboard;
 
         private SpriteFont font;
         private Texture2D whiteTexture;
@@ -236,6 +238,12 @@ namespace JumpMan
         {
             KeyboardState keyboard = Keyboard.GetState();
 
+            if (keyboard.IsKeyDown(Keys.P) && previousKeyboard.IsKeyUp(Keys.P))
+            {
+                isPaused = !isPaused;
+            }
+            previousKeyboard = keyboard;
+
             if (isGameOver)
             {
                 if (keyboard.IsKeyDown(Keys.Enter))
@@ -250,6 +258,9 @@ namespace JumpMan
                 }
                 return;
             }
+            if (isPaused)
+                return;
+
 
             if (!useDemoPlayer && !isGameOver)
             {
@@ -423,7 +434,16 @@ namespace JumpMan
                 _spriteBatch.DrawString(font, "GAME OVER - Presiona Enter para reiniciar",
                     new Vector2(150, 300), Color.Red);
             }
+            if (isPaused)
+            {
+                string texto = "PAUSADO";
+                Vector2 tamaño = font.MeasureString(texto);
+                Vector2 posicion = new Vector2(
+                    (_graphics.PreferredBackBufferWidth - tamaño.X) / 2,
+                    (_graphics.PreferredBackBufferHeight - tamaño.Y) / 2);
 
+                _spriteBatch.DrawString(font, texto, posicion, Color.Red);
+            }
             _spriteBatch.End();
             base.Draw(gameTime);
         }
