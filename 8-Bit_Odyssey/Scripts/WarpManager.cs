@@ -85,10 +85,21 @@ namespace Bit_Odyssey.Scripts
 
                 try
                 {
-                    // Cargar mapa destino
+                    
                     newMap = content.Load<TiledMap>(target.Replace("\\", "/"));
                     newRenderer = new TiledMapRenderer(graphicsDevice, newMap);
 
+                    // Detecta segun el mapa
+                    if (target.Contains("Underground") || target.ToLower().Contains("underground"))
+                    {
+                        Music.PlayMusicUnderGroud();
+                    }
+                    else
+                    {
+                        Music.PlayMusicOverWorld();
+                    }
+
+                    
                     // Cargar colisiones
                     newColliders = new List<Rectangle>();
                     var layer = newMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
@@ -112,7 +123,7 @@ namespace Bit_Odyssey.Scripts
 
                     // Buscar punto de aparición
                     Vector2 finalSpawn = new Vector2(100, 300);
-                    var spawnLayer = newMap.GetLayer<TiledMapObjectLayer>("SpawnPoints");
+                    var spawnLayer = newMap.GetLayer<TiledMapObjectLayer>("Warps");
 
                     if (!string.IsNullOrEmpty(spawnId) && spawnLayer != null)
                     {

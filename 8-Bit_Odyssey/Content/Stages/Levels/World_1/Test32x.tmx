@@ -114,16 +114,6 @@
     <property name="objectType" value="Koopa"/>
    </properties>
   </object>
-  <object id="101" gid="1073741919" x="576" y="384" width="32" height="32" rotation="180">
-   <properties>
-    <property name="objectType" value="Goomba"/>
-   </properties>
-  </object>
-  <object id="103" gid="1073741920" x="832" y="384" width="32" height="32" rotation="180.083">
-   <properties>
-    <property name="objectType" value="Koopa"/>
-   </properties>
-  </object>
   <object id="104" gid="1073741907" x="864" y="256" width="32" height="32" rotation="90">
    <properties>
     <property name="objectType" value="Coin"/>
@@ -189,16 +179,6 @@
     <property name="objectType" value="Bloque_destruible"/>
    </properties>
   </object>
-  <object id="120" gid="1073741919" x="1504" y="384" width="32" height="32" rotation="180">
-   <properties>
-    <property name="objectType" value="Goomba"/>
-   </properties>
-  </object>
-  <object id="121" gid="1073741920" x="1568" y="384" width="32" height="32" rotation="180.083">
-   <properties>
-    <property name="objectType" value="Koopa"/>
-   </properties>
-  </object>
   <object id="122" gid="1073741919" x="1632" y="384" width="32" height="32" rotation="180">
    <properties>
     <property name="objectType" value="Goomba"/>
@@ -224,16 +204,6 @@
     <property name="objectType" value="Goomba"/>
    </properties>
   </object>
-  <object id="127" gid="1073741919" x="2459.75" y="384.875" width="32" height="32" rotation="180">
-   <properties>
-    <property name="objectType" value="Goomba"/>
-   </properties>
-  </object>
-  <object id="128" gid="1073741919" x="2496" y="384" width="32" height="32" rotation="180">
-   <properties>
-    <property name="objectType" value="Goomba"/>
-   </properties>
-  </object>
   <object id="129" gid="1073741907" x="2528" y="288" width="32" height="32" rotation="90">
    <properties>
     <property name="objectType" value="Coin"/>
@@ -245,11 +215,6 @@
    </properties>
   </object>
   <object id="131" gid="1073741920" x="2752" y="288" width="32" height="32" rotation="180.083">
-   <properties>
-    <property name="objectType" value="Koopa"/>
-   </properties>
-  </object>
-  <object id="132" gid="1073741920" x="2880" y="160" width="32" height="32" rotation="180.083">
    <properties>
     <property name="objectType" value="Koopa"/>
    </properties>
@@ -336,8 +301,8 @@
   </properties>
   <object id="76" x="736" y="320" width="62.6364" height="14.5455">
    <properties>
-    <property name="spawnX" type="float" value="65"/>
-    <property name="spawnY" type="float" value="60"/>
+    <property name="direction" value="down"/>
+    <property name="spawnId" value="entrada1"/>
     <property name="warpTarget" value="Stages/Levels/World_1/1-1Underground"/>
    </properties>
   </object>
@@ -348,7 +313,7 @@
   </object>
   <object id="135" x="2304" y="352" width="63.5758" height="20.303">
    <properties>
-    <property name="spawnId" value="main_entrada"/>
+    <property name="spawnId" value="salida1"/>
    </properties>
   </object>
  </objectgroup>
