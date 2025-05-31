@@ -118,7 +118,7 @@ namespace JumpMan
 
             RegenerarObjetos();
 
-            JumpMan = new Player(new Vector2(100, 300), () =>
+            JumpMan = new Player(playerSpawnPoint(), () => 
             {
                 lives--;
                 gameTimer = 400;
@@ -129,7 +129,7 @@ namespace JumpMan
                 }
                 else
                 {
-                    JumpMan.Position = new Vector2(100, 300);
+                    JumpMan.Position = playerSpawnPoint();
                     JumpMan.Velocity = Vector2.Zero;
                 }
                 RegenerarObjetos();
@@ -220,7 +220,7 @@ namespace JumpMan
                     isGameOver = false;
                     gameTimer = 400;
                     musicSpedUp = false;
-                    JumpMan.Position = new Vector2(100, 300);
+                    JumpMan.Position = playerSpawnPoint();
                     JumpMan.Velocity = Vector2.Zero;
                     RegenerarObjetos();
                 }
