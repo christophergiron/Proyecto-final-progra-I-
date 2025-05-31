@@ -29,7 +29,7 @@ namespace JumpMan
 
         private int lives = 3;
         private bool isGameOver = false;
-        private double gameTimer = 110;
+        private double gameTimer = 300;
         private bool musicSpedUp = false;
         private bool isPaused = false;
         private KeyboardState previousKeyboard;
@@ -77,7 +77,7 @@ namespace JumpMan
 
         protected override void LoadContent()
         {
-            goals.Add(new Goal(new Vector2(250, 300)));
+            //goals.Add(new Goal(new Vector2(250, 300)));
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
