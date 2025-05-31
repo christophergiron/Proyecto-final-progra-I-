@@ -112,7 +112,7 @@ namespace Bit_Odyssey.Scripts
 
                     // Buscar punto de aparición
                     Vector2 finalSpawn = new Vector2(100, 300);
-                    var spawnLayer = newMap.GetLayer<TiledMapObjectLayer>("SpawnPoints");
+                    var spawnLayer = newMap.GetLayer<TiledMapObjectLayer>("Warps");
 
                     if (!string.IsNullOrEmpty(spawnId) && spawnLayer != null)
                     {

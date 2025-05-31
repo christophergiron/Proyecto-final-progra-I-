@@ -48,13 +48,13 @@
   <object id="28" x="481.077" y="410.815" width="61.4882" height="29.8793" rotation="-91">
    <properties>
     <property name="direction" value="right"/>
-    <property name="spawnId" value="main_entrada"/>
+    <property name="spawnId" value="salida1"/>
     <property name="warpTarget" value="Stages/Levels/World_1/Test32x"/>
    </properties>
   </object>
-  <object id="29" x="65.6364" y="18.5455" width="61.6364" height="13.8182">
+  <object id="29" x="126.636" y="92.5455" width="61.6364" height="26.8182" rotation="180">
    <properties>
-    <property name="warpSpawn" type="int" value="1"/>
+    <property name="spawnId" value="entrada1"/>
    </properties>
   </object>
  </objectgroup>
