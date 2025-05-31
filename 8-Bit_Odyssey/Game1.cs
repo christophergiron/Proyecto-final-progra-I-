@@ -83,7 +83,7 @@ namespace JumpMan
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
-            goombaTexture = Content.Load<Texture2D>("goombaTexture");
+            goombaTexture = Content.Load<Texture2D>("Enemigo/goombaTexture");
 
             // Carga mapa principal
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
@@ -192,7 +192,7 @@ namespace JumpMan
                         switch (typeProp)
                         {
                             case "Goomba":
-                                enemies.Add(new Goomba(spawnPos, goombaWalkTexture));  // <-- aquí pasas la textura
+                                enemies.Add(new Goomba(spawnPos, goombaTexture)); // <-- aquí pasas la textura
                                 break;
 
 
@@ -436,9 +436,14 @@ namespace JumpMan
                 else if (enemy is Koopa koopa)
                     color = koopa.IsInShell ? (koopa.IsMovingShell ? Color.Orange : Color.Cyan) : Color.ForestGreen;
 
-                _spriteBatch.Draw(whiteTexture,
-                    new Rectangle((int)(enemy.Position.X - camera.Position.X), (int)enemy.Position.Y, 32, 32),
-                    color);
+                   _spriteBatch.Draw(
+                  goombaTexture,
+                    new Rectangle(
+                      (int)(enemy.Position.X - camera.Position.X),
+                      (int)(enemy.Position.Y - camera.Position.Y),
+                       goombaTexture.Width,
+                     goombaTexture.Height),
+                      color);
             }
 
             foreach (var block in blocks)

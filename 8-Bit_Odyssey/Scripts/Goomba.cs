@@ -78,9 +78,7 @@ namespace Bit_Odyssey.Scripts
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Texture2D pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-            pixel.SetData(new[] { Color.White });
-            spriteBatch.Draw(pixel, Hitbox, Color.SaddleBrown);
+            spriteBatch.Draw(walkTexture, Hitbox, Color.White);
         }
     }
 }
