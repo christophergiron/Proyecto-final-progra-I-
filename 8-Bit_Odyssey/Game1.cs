@@ -192,7 +192,7 @@ namespace JumpMan
                                 break;
 
                             case "Coin":
-                                coins.Add(new Coin((spawnPos), coinFrames));
+                                coins.Add(new Coin(spawnPos, coinFrames));
                                 break;
 
                             default:
@@ -372,10 +372,7 @@ namespace JumpMan
                 _spriteBatch.Draw(whiteTexture,
                     new Rectangle(
                         (int)(demoPlayer.Position.X - camera.Position.X),
-                        (int)demoPlayer.Position.Y,
-                        32,
-                        32),
-                    Color.HotPink);
+                        (int)demoPlayer.Position.Y, 32, 32), Color.HotPink);
             }
             else
             {
