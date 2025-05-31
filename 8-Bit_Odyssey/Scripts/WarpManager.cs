@@ -14,106 +14,127 @@ using MonoGame.Extended.Tiled.Renderers;
 
 namespace Bit_Odyssey.Scripts
 {
-  public static class WarpManager
-  {
-      public static bool CheckWarpTriggers(
-          Player player,
-          List<TiledMapObject> warpZones,
-          ContentManager content,
-          GraphicsDevice graphicsDevice,
-          out TiledMap newMap,
-          out TiledMapRenderer newRenderer,
-          out List<Rectangle> newColliders,
-          out List<TiledMapObject> newWarps,
-          out Vector2? spawnPosition
-      )
-      {
-          newMap = null;
-          newRenderer = null;
-          newColliders = null;
-          newWarps = null;
-          spawnPosition = null;
+    public static class WarpManager
+    {
+        public static bool CheckWarpTriggers(
+            Player player,
+            List<TiledMapObject> warpZones,
+            ContentManager content,
+            GraphicsDevice graphicsDevice,
+            out TiledMap newMap,
+            out TiledMapRenderer newRenderer,
+            out List<Rectangle> newColliders,
+            out List<TiledMapObject> newWarps,
+            out Vector2? spawnPosition
+        )
+        {
+            newMap = null;
+            newRenderer = null;
+            newColliders = null;
+            newWarps = null;
+            spawnPosition = null;
 
-          KeyboardState keyboard = Keyboard.GetState();
+            KeyboardState keyboard = Keyboard.GetState();
 
-          foreach (var warp in warpZones)
-          {
-              Rectangle warpRect = new Rectangle(
-                  (int)warp.Position.X,
-                  (int)(warp.Position.Y - warp.Size.Height),
-                  (int)warp.Size.Width,
-                  (int)warp.Size.Height
-              );
+            foreach (var warp in warpZones)
+            {
+                // Leer propiedades del warp
+                string direction = warp.Properties.TryGetValue("direction", out var dirProp)
+                    ? dirProp.ToString().ToLower()
+                    : "down";
 
-              if (!player.Hitbox.Intersects(warpRect))
-                  continue;
+                string target = warp.Properties.TryGetValue("warpTarget", out var targetProp)
+                    ? targetProp.ToString()
+                    : null;
 
-              string target = warp.Properties.TryGetValue("warpTarget", out var targetProp) ? targetProp.ToString() : null;
-              string direction = warp.Properties.TryGetValue("direction", out var dirProp) ? dirProp.ToString().ToLower() : "down";
-              string spawnId = warp.Properties.TryGetValue("spawnId", out var spawnIdProp) ? spawnIdProp.ToString() : null;
+                string spawnId = warp.Properties.TryGetValue("spawnId", out var spawnIdProp)
+                    ? spawnIdProp.ToString()
+                    : null;
 
-              bool shouldWarp = direction switch
-              {
-                  "down" => keyboard.IsKeyDown(Keys.Down) && player.IsOnGround,
-                  "up" => keyboard.IsKeyDown(Keys.Up),
-                  "left" => keyboard.IsKeyDown(Keys.Left),
-                  "right" => keyboard.IsKeyDown(Keys.Right),
-                  _ => false
-              };
+                int expandX = 4;
+                int expandY = 4;
 
-              if (!shouldWarp || string.IsNullOrEmpty(target))
-                  continue;
+                if (direction == "left" || direction == "right")
+                    expandX = 12;
 
-              try
-              {
-                  // Cargar el nuevo mapa
-                  newMap = content.Load<TiledMap>(target.Replace("\\", "/"));
-                  newRenderer = new TiledMapRenderer(graphicsDevice, newMap);
+                if (direction == "up" || direction == "down")
+                    expandY = 12;
 
-                  // Leer colisiones
-                  newColliders = new List<Rectangle>();
-                  var layer = newMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
-                  for (int y = 0; y < layer.Height; y++)
-                      for (int x = 0; x < layer.Width; x++)
-                      {
-                          var tile = layer.GetTile((ushort)x, (ushort)y);
-                          if (!tile.IsBlank)
-                          {
-                              newColliders.Add(new Rectangle(
-                                  x * newMap.TileWidth,
-                                  y * newMap.TileHeight,
-                                  newMap.TileWidth,
-                                  newMap.TileHeight));
-                          }
-                      }
+                Rectangle warpRect = new Rectangle(
+                    (int)warp.Position.X - expandX,
+                    (int)(warp.Position.Y - warp.Size.Height) - expandY,
+                    (int)warp.Size.Width + 2 * expandX,
+                    (int)warp.Size.Height + 2 * expandY
+                );
 
-                  // Warps del nuevo mapa
-                  var warpLayer = newMap.GetLayer<TiledMapObjectLayer>("Warps");
-                  newWarps = warpLayer?.Objects?.ToList() ?? new List<TiledMapObject>();
+                if (!player.Hitbox.Intersects(warpRect))
+                    continue;
 
-                  // Punto de aparición
-                  Vector2 finalSpawn = new Vector2(100, 300);
-                  var spawnLayer = newMap.GetLayer<TiledMapObjectLayer>("SpawnPoints");
-                  if (!string.IsNullOrEmpty(spawnId) && spawnLayer != null)
-                  {
-                      var targetSpawn = spawnLayer.Objects.FirstOrDefault(o =>
-                          o.Properties.TryGetValue("spawnId", out var prop) && prop.ToString() == spawnId);
+                // Validar entrada
+                bool shouldWarp = direction switch
+                {
+                    "down" => keyboard.IsKeyDown(Keys.Down) && player.IsOnGround,
+                    "up" => keyboard.IsKeyDown(Keys.Up),
+                    "left" => keyboard.IsKeyDown(Keys.Left),
+                    "right" => keyboard.IsKeyDown(Keys.Right),
+                    _ => false
+                };
 
-                      if (targetSpawn != null)
-                          finalSpawn = new Vector2(targetSpawn.Position.X, targetSpawn.Position.Y - targetSpawn.Size.Height);
-                  }
+                if (!shouldWarp || string.IsNullOrEmpty(target))
+                    continue;
 
-                  spawnPosition = finalSpawn;
-                  return true;
-              }
-              catch (Exception ex)
-              {
-                  Console.WriteLine($"[Warp Error] {ex.Message}");
-                  return false;
-              }
-          }
+                try
+                {
+                    // Cargar mapa destino
+                    newMap = content.Load<TiledMap>(target.Replace("\\", "/"));
+                    newRenderer = new TiledMapRenderer(graphicsDevice, newMap);
 
-          return false;
-      }
-  }
+                    // Cargar colisiones
+                    newColliders = new List<Rectangle>();
+                    var layer = newMap.GetLayer<TiledMapTileLayer>("Tile Layer 1");
+                    for (int y = 0; y < layer.Height; y++)
+                        for (int x = 0; x < layer.Width; x++)
+                        {
+                            var tile = layer.GetTile((ushort)x, (ushort)y);
+                            if (!tile.IsBlank)
+                            {
+                                newColliders.Add(new Rectangle(
+                                    x * newMap.TileWidth,
+                                    y * newMap.TileHeight,
+                                    newMap.TileWidth,
+                                    newMap.TileHeight));
+                            }
+                        }
+
+                    // Cargar warps nuevos
+                    var warpLayer = newMap.GetLayer<TiledMapObjectLayer>("Warps");
+                    newWarps = warpLayer?.Objects?.ToList() ?? new List<TiledMapObject>();
+
+                    // Buscar punto de aparición
+                    Vector2 finalSpawn = new Vector2(100, 300);
+                    var spawnLayer = newMap.GetLayer<TiledMapObjectLayer>("SpawnPoints");
+
+                    if (!string.IsNullOrEmpty(spawnId) && spawnLayer != null)
+                    {
+                        var targetSpawn = spawnLayer.Objects.FirstOrDefault(o =>
+                            o.Properties.TryGetValue("spawnId", out var prop) &&
+                            prop.ToString() == spawnId);
+
+                        if (targetSpawn != null)
+                            finalSpawn = new Vector2(targetSpawn.Position.X, targetSpawn.Position.Y - targetSpawn.Size.Height);
+                    }
+
+                    spawnPosition = finalSpawn;
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Warp Error] {ex.Message}");
+                    return false;
+                }
+            }
+
+            return false;
+        }
+    }
 }
