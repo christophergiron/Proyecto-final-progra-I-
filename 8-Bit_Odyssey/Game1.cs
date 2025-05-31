@@ -208,6 +208,23 @@ namespace JumpMan
 
         }
 
+        private List<float> DemoPlayerCords()
+        {
+            List<float> puntos = new List<float>();
+
+            var layer = _tiledMap.GetLayer<TiledMapObjectLayer>("DemoJumpPoints");
+            if (layer != null)
+            {
+                foreach (var obj in layer.Objects)
+                {
+                    puntos.Add(obj.Position.X);
+                }
+                puntos.Sort();
+            }
+            return puntos;
+        }
+
+
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboard = Keyboard.GetState();
@@ -238,6 +255,22 @@ namespace JumpMan
             {
                 musicSpedUp = true;
                 Music.PlayMusicOverworldSpeed();
+
+            }
+
+            if (keyboard.IsKeyDown(Keys.Tab))
+            {
+                useDemoPlayer = true;
+                if (demoPlayer == null)
+                {
+                    var puntosDeSalto = DemoPlayerCords();
+                    demoPlayer = new DemoPlayer(playerSpawnPoint(), RegenerarObjetos, puntosDeSalto);
+                }
+            }
+            else if (keyboard.IsKeyDown(Keys.Enter))
+            {
+                useDemoPlayer = false;
+                demoPlayer = null;
             }
 
             if (useDemoPlayer && demoPlayer != null)
@@ -254,15 +287,27 @@ namespace JumpMan
                 foreach (var coin in coins)
                     coin.Update(JumpMan, gameTime);
 
-                bool didWarp = WarpManager.CheckWarpTriggers(JumpMan, warpZones, Content, GraphicsDevice,
-                out var newMap, out var newRenderer, out var newColliders, out var newWarps, RegenerarObjetos);
-
-                if (didWarp)
+                if (WarpManager.CheckWarpTriggers(
+                    JumpMan, warpZones, Content, GraphicsDevice,
+                    out TiledMap newMap,
+                    out TiledMapRenderer newRenderer,
+                    out List<Rectangle> newColliders,
+                    out List<TiledMapObject> newWarps,
+                    out Vector2? spawnPos))
                 {
+                    // Solo si hubo warp
                     _tiledMap = newMap;
                     _tiledMapRenderer = newRenderer;
                     tileColliders = newColliders;
                     warpZones = newWarps;
+
+                    if (spawnPos.HasValue)
+                    {
+                        JumpMan.Position = spawnPos.Value;
+                        JumpMan.Velocity = Vector2.Zero;
+                    }
+
+                    RegenerarObjetos(); 
                 }
 
                 camera.Follow(JumpMan);
@@ -314,17 +359,29 @@ namespace JumpMan
 
             _tiledMapRenderer.Draw(camera.GetViewMatrix());
 
-            Texture2D currentTexture = currentState switch
+            if (useDemoPlayer && demoPlayer != null)
             {
-                PlayerState.WalkingRight => walkRightFrames[currentFrame],
-                PlayerState.WalkingLeft => walkLeftFrames[currentFrame],
-                PlayerState.Idle => idleFrames[currentFrame],
-                _ => idleFrames[0]
-            };
-
-            _spriteBatch.Draw(currentTexture,
-                new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
-                Color.White);
+                _spriteBatch.Draw(whiteTexture,
+                    new Rectangle(
+                        (int)(demoPlayer.Position.X - camera.Position.X),
+                        (int)demoPlayer.Position.Y,
+                        32,
+                        32),
+                    Color.HotPink);
+            }
+            else
+            {
+                Texture2D currentTexture = currentState switch
+                {
+                    PlayerState.WalkingRight => walkRightFrames[currentFrame],
+                    PlayerState.WalkingLeft => walkLeftFrames[currentFrame],
+                    PlayerState.Idle => idleFrames[currentFrame],
+                    _ => idleFrames[0]
+                };
+                _spriteBatch.Draw(currentTexture,
+                    new Vector2(JumpMan.Position.X - camera.Position.X, JumpMan.Position.Y),
+                    Color.White);
+            }
 
             foreach (var enemy in enemies)
             {
