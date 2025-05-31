@@ -18,7 +18,7 @@ namespace JumpMan
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
+        private Texture2D goombaTexture;
         private Player JumpMan;
         private List<Enemy> enemies;
         private List<Block> blocks;
@@ -74,13 +74,14 @@ namespace JumpMan
             musicManager = new Music();
             base.Initialize();
         }
-
+        private Texture2D goombaWalkTexture;
         protected override void LoadContent()
         {
             //goals.Add(new Goal(new Vector2(250, 300)));
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
+            goombaTexture = Content.Load<Texture2D>("goombaTexture");
 
             // Carga mapa principal
             _tiledMap = Content.Load<TiledMap>("Stages/Levels/World_1/Test32x");
@@ -116,6 +117,8 @@ namespace JumpMan
             coinFrames = new List<Texture2D>();
             for (int i = 1; i <= 9; i++)
                 coinFrames.Add(Content.Load<Texture2D>($"coin/goldCoin{i}"));
+
+            goombaWalkTexture = Content.Load<Texture2D>("enemigo/goombaTexture");
 
             // Música
             Music.Load(Content);
@@ -160,8 +163,10 @@ namespace JumpMan
             }
             return new Vector2(100, 300);
         }
+      
         public void RegenerarObjetos()
         {
+           
             enemies = new List<Enemy>();
             blocks = new List<Block>();
             coins = new List<Coin>();
@@ -178,8 +183,9 @@ namespace JumpMan
                         switch (typeProp)
                         {
                             case "Goomba":
-                                enemies.Add(new Goomba(spawnPos));
+                                enemies.Add(new Goomba(spawnPos, goombaWalkTexture));  // <-- aquí pasas la textura
                                 break;
+
 
                             case "Koopa":
                                 enemies.Add(new Koopa(spawnPos));
@@ -203,7 +209,7 @@ namespace JumpMan
                                 break;
 
                             default:
-                                enemies.Add(new Goomba(spawnPos));
+                                enemies.Add(new Goomba(spawnPos, goombaTexture));
                                 break;
                         }
                     }

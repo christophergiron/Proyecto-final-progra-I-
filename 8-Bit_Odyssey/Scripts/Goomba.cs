@@ -10,12 +10,15 @@ namespace Bit_Odyssey.Scripts
 {
     public class Goomba : Enemy
     {
+        private Texture2D walkTexture;  // <-- textura del sprite
+
         public override Rectangle Hitbox => new Rectangle((int)Position.X, (int)Position.Y, 32, 32);
 
-        public Goomba(Vector2 position)
+        public Goomba(Vector2 position, Texture2D walkTexture)
         {
             Position = position;
             Velocity = new Vector2(-1.0f, 0);
+            this.walkTexture = walkTexture;  // asignar la textura recibida
         }
 
         public override void Update(GameTime gameTime, List<Rectangle> tileColliders)
