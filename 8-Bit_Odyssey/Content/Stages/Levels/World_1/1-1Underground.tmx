@@ -45,7 +45,7 @@
  </layer>
  <objectgroup id="3" name="ObjectSpawner"/>
  <objectgroup id="5" name="Warps">
-  <object id="28" x="479.182" y="352.818" width="22" height="62.3636">
+  <object id="28" x="481.077" y="410.815" width="61.4882" height="29.8793" rotation="-91">
    <properties>
     <property name="direction" value="right"/>
     <property name="spawnId" value="main_entrada"/>
