@@ -44,6 +44,7 @@ namespace Bit_Odyssey.Scripts
             {
                 _isBroken = true;
                 isAnimating = true;
+                ScoreManager.AddPoints(300);
                 Music.PlayBreakFX();
             }
         }

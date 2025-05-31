@@ -16,6 +16,14 @@ namespace JumpMan
 
     public class Game1 : Game
     {
+        private enum GameState
+        {
+            TitleScreen,
+            Playing,
+            GameOver
+        }
+        private GameState currentGameState = GameState.TitleScreen;
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D goombaTexture;
@@ -76,10 +84,8 @@ namespace JumpMan
             musicManager = new Music();
             base.Initialize();
         }
-        private Texture2D goombaWalkTexture;
         protected override void LoadContent()
         {
-            //goals.Add(new Goal(new Vector2(250, 300)));
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
@@ -147,6 +153,7 @@ namespace JumpMan
                 if (lives <= 0)
                 {
                     isGameOver = true;
+                    currentGameState = GameState.GameOver;
                     Music.PlayGameover();
                 }
                 else
@@ -211,9 +218,8 @@ namespace JumpMan
                         switch (typeProp)
                         {
                             case "Goomba":
-                                enemies.Add(new Goomba(spawnPos, goombaTexture)); // <-- aquí pasas la textura
+                                enemies.Add(new Goomba(spawnPos, goombaTexture));
                                 break;
-
 
                             case "Koopa":
                                 enemies.Add(new Koopa(spawnPos));
@@ -225,7 +231,7 @@ namespace JumpMan
                                     (int)(obj.Position.Y - obj.Size.Height),
                                     (int)obj.Size.Width,
                                     (int)obj.Size.Height);
-                                blocks.Add(new BreakableBlock(rect, bloqueStaticTexture, bloqueAnimationFrames));    //en ves de blocks.Add(new BreakableBlock(rect));
+                                blocks.Add(new BreakableBlock(rect, bloqueStaticTexture, bloqueAnimationFrames)); 
                                 break;
 
                             case "Coin":
@@ -272,22 +278,35 @@ namespace JumpMan
         {
             KeyboardState keyboard = Keyboard.GetState();
 
+            // Pantalla de título
+            if (currentGameState == GameState.TitleScreen)
+            {
+                if (keyboard.IsKeyDown(Keys.Enter) && previousKeyboard.IsKeyUp(Keys.Enter))
+                {
+                    currentGameState = GameState.Playing;
+                }
+                previousKeyboard = keyboard;
+                return;
+            }
+
             if (keyboard.IsKeyDown(Keys.P) && previousKeyboard.IsKeyUp(Keys.P))
             {
                 isPaused = !isPaused;
             }
             previousKeyboard = keyboard;
 
-            if (isGameOver)
+            if (currentGameState == GameState.GameOver)
             {
-                if (keyboard.IsKeyDown(Keys.Enter))
+                if (keyboard.IsKeyDown(Keys.U))
                 {
                     lives = 3;
                     isGameOver = false;
                     gameTimer = 400;
                     musicSpedUp = false;
+                    currentGameState = GameState.TitleScreen;
                     JumpMan.Position = playerSpawnPoint();
                     JumpMan.Velocity = Vector2.Zero;
+                    ScoreManager.Reset();
                     RegenerarObjetos();
                 }
                 return;
@@ -327,7 +346,7 @@ namespace JumpMan
                     demoPlayer = new DemoPlayer(playerSpawnPoint(), RegenerarObjetos, puntosDeSalto);
                 }
             }
-            else if (keyboard.IsKeyDown(Keys.Enter))
+            else if (keyboard.IsKeyDown(Keys.D))
             {
                 useDemoPlayer = false;
                 demoPlayer = null;
@@ -349,6 +368,7 @@ namespace JumpMan
                     if (g.Contains(JumpMan.Position))
                     {
                         isGameOver = true;
+                        currentGameState = GameState.GameOver;
                         Music.PlayClear();
                         break;
                     }
@@ -448,6 +468,27 @@ namespace JumpMan
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(new Color(148, 148, 255));
+            if (currentGameState == GameState.TitleScreen)
+            {
+                _spriteBatch.Begin();
+
+                string titulo = "JumpMan Reborn";
+                string presiona = "Presiona Enter para comenzar";
+
+                Vector2 tSize = font.MeasureString(titulo);
+                Vector2 pSize = font.MeasureString(presiona);
+
+                _spriteBatch.DrawString(font, titulo,
+                    new Vector2((_graphics.PreferredBackBufferWidth - tSize.X) / 2, 200),
+                    Color.Yellow);
+
+                _spriteBatch.DrawString(font, presiona,
+                    new Vector2((_graphics.PreferredBackBufferWidth - pSize.X) / 2, 260),
+                    Color.White);
+
+                _spriteBatch.End();
+                return;
+            }
             _spriteBatch.Begin();
 
             _tiledMapRenderer.Draw(camera.GetViewMatrix());
@@ -498,10 +539,12 @@ namespace JumpMan
 
             _spriteBatch.DrawString(font, $"Vidas: {lives}", new Vector2(10, 10), Color.Black);
             _spriteBatch.DrawString(font, $"Tiempo: {Math.Round(gameTimer, 2)}", new Vector2(10, 30), Color.Black);
+            _spriteBatch.DrawString(font, $"Monedas: {ScoreManager.Coins}", new Vector2(10, 50), Color.Black);
+            _spriteBatch.DrawString(font, $"Puntos: {ScoreManager.Points}", new Vector2(10, 70), Color.Black);
 
             if (isGameOver)
             {
-                _spriteBatch.DrawString(font, "GAME OVER - Presiona Enter para reiniciar",
+                _spriteBatch.DrawString(font, "GAME OVER - Presiona U para reiniciar",
                     new Vector2(150, 300), Color.Red);
             }
             if (isPaused)
