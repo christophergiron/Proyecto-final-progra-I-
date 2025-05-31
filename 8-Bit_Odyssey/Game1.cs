@@ -314,15 +314,6 @@ namespace JumpMan
             if (isPaused)
                 return;
 
-            // Yo sé, que esta noche tú te atreves bebé 🥰
-            // Porque, si las botellas aquí no faltan 🍾🥂
-            // Baby, porque esta noche sí se bebe, bebe 🍻
-            // Baby, nos vamos hasta que el sol salga 🌅
-            // Yo sé, que esta noche tú te atreves 😎
-
-
-
-
             if (!useDemoPlayer && !isGameOver)
             {
                 gameTimer -= gameTime.ElapsedGameTime.TotalSeconds;
@@ -401,17 +392,6 @@ namespace JumpMan
                 }
 
                 camera.Follow(JumpMan);
-
-                // En las malas jamás tiré la toalla 🏋️‍♂️🧱
-                // Ya me es normal, en esto se batalla ⚔️🔥
-                // Poco a poco se construye la muralla 🧱🛡️
-                // Para todos sale el sol 🌞
-                // Piensan que está muy pelada 🏜️🤔
-                // Hoy tengo todo y empecé sin nada 🏆🚀
-                // Fueron pocos los que en mí confiaban 🤷‍♂️
-                // Hoy soy el mismo, usted cambió 🔄😌
-
-
 
             }
 

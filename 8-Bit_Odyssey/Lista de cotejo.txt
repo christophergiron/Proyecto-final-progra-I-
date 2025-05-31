@@ -1,0 +1,17 @@
+Codigo principal
+Christopher García - Programador principal 75%
+Jose Castillo - Programador auxiliar, editor de mapas, idea original sobre usar el framework 20%
+Angel Mejia- programador auxiliar 3.5%
+Miguel Alfaro - Meta de final 1.5%
+
+sprites/animaciones e implementación:
+Diego Catalan - Artista de sprites y su implementación en el juego 50%
+Saul Silvestre - Artista de sprites y su implementación en el juego  50%
+
+Musica y arte del mapa:
+Miguel Alfaro - Artista de tiles, diseñador de niveles, programador de la musica, sfx 
+Carlos Polanco - Creador de la musica, auxiliar del programador de musica 30%
+
+Tiled
+Jose Castillo - implementación objetos en tiled y mapa del nivel 90%
+Christopher García - guionización demo player - warps 10%
