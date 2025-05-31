@@ -119,7 +119,7 @@ namespace JumpMan
 
             RegenerarObjetos();
 
-            goal = new Goal(new Vector2(250, 300));
+//            goal = new Goal(new Vector2(250, 300));
             JumpMan = new Player(playerSpawnPoint(), () => 
             {
                 lives--;
@@ -193,6 +193,10 @@ namespace JumpMan
 
                             case "Coin":
                                 coins.Add(new Coin(spawnPos, coinFrames));
+                                break;
+                            
+                            case "Meta":
+                                goal = new Goal(spawnPos);
                                 break;
 
                             default:
