@@ -26,7 +26,9 @@ namespace Bit_Odyssey.Scripts
         private static Song clear;
         private static bool esperaReset = false;
         private static float resetMusic = 0f;
-        
+        private static bool isPlayingClear = false;
+        private static float clearDuration = 0f;
+
         public static void Load(ContentManager content) //aqui se cargan los archivos de la misma
         {
             overworld = content.Load<Song>("Music/Overworld");
@@ -94,11 +96,14 @@ namespace Bit_Odyssey.Scripts
         }
         public static void PlayClear()
         {
-            MediaPlayer.IsRepeating = false;
             MediaPlayer.Stop();
             MediaPlayer.Play(clear);
+            MediaPlayer.IsRepeating = false;
+
+            isPlayingClear = true;
+            clearDuration = 3f;                                                                                                                                                                                                                                                                                                                                                                 
         }
-        public static void ResetMusic(float deathFXDuration)  //esto hace que se repita la musica cuando se muere
+        public static void ResetMusic(float deathFXDuration)  //esto hace que se repita la musica cuando se muere                                                                                                                                                                                                                                                                                                               
         {
             esperaReset = true;
             resetMusic = deathFXDuration;
@@ -112,6 +117,16 @@ namespace Bit_Odyssey.Scripts
                 {
                     PlayMusicOverWorld();
                     esperaReset = false;
+                }
+            }
+
+            if (isPlayingClear) //hace que el clear no se repita, alto bodrio esta cosa, no se pudo hacer sin eso 
+            {
+                clearDuration -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (clearDuration <= 0)
+                {
+                    PlayMusicOverWorld();
+                    isPlayingClear = false;
                 }
             }
         }
