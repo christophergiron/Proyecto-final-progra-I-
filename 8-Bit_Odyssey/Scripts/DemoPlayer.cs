@@ -1,12 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Bit_Odyssey.Scripts;
+using JumpMan;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bit_Odyssey.Scripts;
-using Microsoft.Xna.Framework.Graphics;
 
 
 namespace Bit_Odyssey.Scripts
@@ -19,7 +20,7 @@ namespace Bit_Odyssey.Scripts
         public DemoPlayer(Vector2 position, Action onDeathCallback, List<float> jumpXs)
             : base(position, onDeathCallback)
         {
-            this.jumpPositionsX = jumpXs ?? new List<float>();
+            jumpPositionsX = jumpXs ?? new List<float>();
         }
 
         public void Update(GameTime gameTime, List<Rectangle> tileColliders, List<Block> blocks, List<Enemy> enemies)
@@ -29,13 +30,18 @@ namespace Bit_Odyssey.Scripts
             if (IsRespawning())
                 return;
 
-            // Movimiento automático hacia la derecha
+            // Movimiento automático
             Velocity.X += 0.15f;
             if (Velocity.X > 6f) Velocity.X = 6f;
 
             HandleJumpTriggers();
             CheckCollisions(tileColliders, blocks);
             CheckEnemyCollisions(enemies);
+
+            if (Position.Y > 600)
+            {
+                Die(); // Llama al Die() heredado del Player, que ya hace el respawn correctamente
+            }
         }
 
         private void HandleJumpTriggers()
@@ -44,23 +50,17 @@ namespace Bit_Odyssey.Scripts
                 Math.Abs(Position.X - jumpPositionsX[currentJumpIndex]) < 5 &&
                 IsOnGround)
             {
-                SimulateJump();
+                Velocity.Y = -10f;
+                IsOnGround = false;
+                Music.PlayJumpFX();
                 currentJumpIndex++;
             }
         }
 
-        private void SimulateJump()
+        public void ResetDemo()
         {
-            Velocity.Y = -10f;
-            IsOnGround = false;
-            Music.PlayJumpFX();
-        }
-
-        public void ResetDemo(Vector2 startPosition)
-        {
-            Position = startPosition;
+            Position = Game1.playerSpawnPoint(); // se alinea con el Player
             Velocity = Vector2.Zero;
-            IsOnGround = false;
             currentJumpIndex = 0;
         }
     }

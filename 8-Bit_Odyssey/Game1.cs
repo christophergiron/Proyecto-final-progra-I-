@@ -138,7 +138,7 @@ namespace JumpMan
             JumpMan = new Player(playerSpawnPoint(), () => 
             {
                 lives--;
-                gameTimer = 400;
+                gameTimer = 300;
                 if (lives <= 0)
                 {
                     isGameOver = true;
@@ -155,7 +155,7 @@ namespace JumpMan
             font = Content.Load<SpriteFont>("DefaultFont");
         }
 
-        private Vector2 playerSpawnPoint()
+        public static Vector2 playerSpawnPoint()
         {
             var spawnerLayer = _tiledMap.GetLayer<TiledMapObjectLayer>("ObjectSpawner");
             if (spawnerLayer != null)
@@ -356,10 +356,15 @@ namespace JumpMan
                 camera.Follow(JumpMan);
             }
 
-            if (!JumpMan.isRespawning)
+            bool demoRespawn = useDemoPlayer && demoPlayer.IsRespawning();
+
+            if (!useDemoPlayer && !JumpMan.isRespawning || useDemoPlayer && !demoRespawn)
             {
                 foreach (var enemy in enemies)
                     enemy.Update(gameTime, tileColliders);
+
+                foreach (var coin in coins)
+                    coin.Update(useDemoPlayer ? demoPlayer : JumpMan, gameTime);
             }
 
             for (int i = enemies.Count - 1; i >= 0; i--)

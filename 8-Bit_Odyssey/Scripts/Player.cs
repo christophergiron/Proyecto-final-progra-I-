@@ -278,7 +278,7 @@ namespace Bit_Odyssey.Scripts
         }
         public void Die()
         {
-            Position = new Vector2(100, 369);
+            Position = Game1.playerSpawnPoint();
             Velocity = Vector2.Zero;
             isRespawning = true;
             respawnTimer = respawnDelay;
