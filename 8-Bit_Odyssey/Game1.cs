@@ -58,6 +58,8 @@ namespace JumpMan
         private PlayerState currentState = PlayerState.Idle;
 
         private List<Texture2D> coinFrames;
+        private Texture2D bloqueStaticTexture;//cuboanuma
+        private Texture2D[] bloqueAnimationFrames;//cuboanimation
 
         public Game1()
         {
@@ -116,6 +118,15 @@ namespace JumpMan
             coinFrames = new List<Texture2D>();
             for (int i = 1; i <= 9; i++)
                 coinFrames.Add(Content.Load<Texture2D>($"coin/goldCoin{i}"));
+
+            // animacion bloque
+            bloqueStaticTexture = Content.Load<Texture2D>("bloque/bloque1");
+
+            bloqueAnimationFrames = new Texture2D[3];
+            for (int i = 0; i < 3; i++)
+            {
+                bloqueAnimationFrames[i] = Content.Load<Texture2D>($"bloque/bloque{i + 2}");
+            }
 
             // Música
             Music.Load(Content);
@@ -191,7 +202,7 @@ namespace JumpMan
                                     (int)(obj.Position.Y - obj.Size.Height),
                                     (int)obj.Size.Width,
                                     (int)obj.Size.Height);
-                                blocks.Add(new BreakableBlock(rect));
+                                blocks.Add(new BreakableBlock(rect, bloqueStaticTexture, bloqueAnimationFrames));    //en ves de blocks.Add(new BreakableBlock(rect));
                                 break;
 
                             case "Coin":
@@ -351,6 +362,12 @@ namespace JumpMan
             {
                 if (enemies[i] is Koopa koopa)
                     koopa.HandleShellCollisions(enemies);
+            }
+            // bloques animation :
+            foreach (var block in blocks)
+            {
+                if (block is BreakableBlock breakableBlock)
+                    breakableBlock.Update(gameTime);
             }
 
             currentState = JumpMan.Velocity.X switch
