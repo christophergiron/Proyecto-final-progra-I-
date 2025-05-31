@@ -166,7 +166,7 @@
     <property name="objectType" value="Meta"/>
    </properties>
   </object>
-  <object id="88" gid="37" x="321" y="305" width="32" height="32" rotation="90">
+  <object id="88" gid="37" x="319.5" y="325" width="32" height="32" rotation="90">
    <properties>
     <property name="objectType" value="Meta"/>
    </properties>
