@@ -240,7 +240,9 @@ namespace Bit_Odyssey.Scripts
                 if (!Hitbox.Intersects(enemy.Hitbox)) continue;
 
                 Rectangle intersection = Rectangle.Intersect(Hitbox, enemy.Hitbox);
-                bool isAbove = this.Hitbox.Bottom <= enemy.Hitbox.Top + 5 && Velocity.Y > 1f;
+
+                // Más tolerancia para que sea claro si lo golpea desde arriba
+                bool isAbove = Hitbox.Bottom <= enemy.Hitbox.Top + 10 && Velocity.Y > 1f;
 
                 if (enemy is Goomba)
                 {
