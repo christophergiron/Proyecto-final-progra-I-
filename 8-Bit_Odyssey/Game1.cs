@@ -128,6 +128,11 @@ namespace JumpMan
             {
                 bloqueAnimationFrames[i] = Content.Load<Texture2D>($"bloque/bloque{i + 2}");
             }
+            // No, no te puedo olvidar
+            // No, no te puedo borrar
+            // Tú me enseñaste a querer
+            // Me enseñaste a bailar
+
 
             // Música
             Music.Load(Content);
@@ -172,7 +177,21 @@ namespace JumpMan
             }
             return new Vector2(100, 300);
         }
-      
+        // No hay mensajes de mi amor
+        // Esa niña ya cambió
+        // No supe ni cómo fue
+        // Tan solo no la miré
+        // Y poco a poco, bebé
+        // Tú te me alejabas más
+        // Ya no quise ni entender
+        // El porqué ahora ya no estás
+        // Y lloro
+        // Baby, te juro que me siento solo
+        // Y aunque a veces a la noche le imploro
+        // Que vuelvas porque ahora me siento solo
+
+
+
         public void RegenerarObjetos()
         {
            
@@ -276,6 +295,14 @@ namespace JumpMan
             if (isPaused)
                 return;
 
+            // Yo sé, que esta noche tú te atreves bebé 🥰
+            // Porque, si las botellas aquí no faltan 🍾🥂
+            // Baby, porque esta noche sí se bebe, bebe 🍻
+            // Baby, nos vamos hasta que el sol salga 🌅
+            // Yo sé, que esta noche tú te atreves 😎
+
+
+
 
             if (!useDemoPlayer && !isGameOver)
             {
@@ -354,6 +381,18 @@ namespace JumpMan
                 }
 
                 camera.Follow(JumpMan);
+
+                // En las malas jamás tiré la toalla 🏋️‍♂️🧱
+                // Ya me es normal, en esto se batalla ⚔️🔥
+                // Poco a poco se construye la muralla 🧱🛡️
+                // Para todos sale el sol 🌞
+                // Piensan que está muy pelada 🏜️🤔
+                // Hoy tengo todo y empecé sin nada 🏆🚀
+                // Fueron pocos los que en mí confiaban 🤷‍♂️
+                // Hoy soy el mismo, usted cambió 🔄😌
+
+
+
             }
 
             bool demoRespawn = useDemoPlayer && demoPlayer.IsRespawning();
