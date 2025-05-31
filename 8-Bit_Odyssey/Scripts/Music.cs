@@ -101,7 +101,7 @@ namespace Bit_Odyssey.Scripts
             MediaPlayer.IsRepeating = false;
 
             isPlayingClear = true;
-            clearDuration = 3f;                                                                                                                                                                                                                                                                                                                                                                 
+            clearDuration = 1f                                                                                                                                                                                                                                                                                                                                                                 
         }
         public static void ResetMusic(float deathFXDuration)  //esto hace que se repita la musica cuando se muere                                                                                                                                                                                                                                                                                                               
         {

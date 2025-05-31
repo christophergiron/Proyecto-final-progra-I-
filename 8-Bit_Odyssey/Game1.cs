@@ -25,7 +25,7 @@ namespace JumpMan
         private List<Coin> coins;
         private List<TiledMapObject> warpZones;
         private List<Rectangle> tileColliders;
-        private Goal goal; //la meta
+        private List<Goal> goals;        //la meta
 
         private int lives = 3;
         private bool isGameOver = false;
@@ -66,6 +66,7 @@ namespace JumpMan
 
         protected override void Initialize()
         {
+            goals = new List<Goal>();
             blocks = new List<Block>();
             camera = new Camera(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
             musicManager = new Music();
@@ -74,6 +75,7 @@ namespace JumpMan
 
         protected override void LoadContent()
         {
+            goals.Add(new Goal(new Vector2(250, 300)));
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             whiteTexture = new Texture2D(GraphicsDevice, 1, 1);
             whiteTexture.SetData(new[] { Color.White });
@@ -119,7 +121,6 @@ namespace JumpMan
 
             RegenerarObjetos();
 
-//            goal = new Goal(new Vector2(250, 300));
             JumpMan = new Player(playerSpawnPoint(), () => 
             {
                 lives--;
@@ -196,7 +197,7 @@ namespace JumpMan
                                 break;
                             
                             case "Meta":
-                                goal = new Goal(spawnPos);
+                                goals.Add(new Goal(spawnPos));
                                 break;
 
                             default:
@@ -290,10 +291,14 @@ namespace JumpMan
                 JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
 
-                if (goal != null && goal.Contains(JumpMan.Position))
+                foreach (var g in goals)
                 {
-                    isGameOver = true;
-                    Music.PlayClear();
+                    if (g.Contains(JumpMan.Position))
+                    {
+                        isGameOver = true;
+                        Music.PlayClear();
+                        break;
+                    }
                 }
 
                 foreach (var coin in coins)
