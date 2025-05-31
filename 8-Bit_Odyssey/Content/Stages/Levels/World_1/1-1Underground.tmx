@@ -47,6 +47,8 @@
  <objectgroup id="5" name="Warps">
   <object id="28" x="479.182" y="352.818" width="22" height="62.3636">
    <properties>
+    <property name="direction" value="right"/>
+    <property name="spawnId" value="main_entrada"/>
     <property name="warpTarget" value="Stages/Levels/World_1/Test32x"/>
    </properties>
   </object>

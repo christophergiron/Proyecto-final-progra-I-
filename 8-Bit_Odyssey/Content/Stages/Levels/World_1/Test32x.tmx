@@ -158,7 +158,7 @@
   </object>
   <object id="78" x="768.121" y="352.242" width="63.5758" height="20.303">
    <properties>
-    <property name="warpSpawn" type="int" value="1"/>
+    <property name="spawnId" value="main_entrada"/>
    </properties>
   </object>
  </objectgroup>
