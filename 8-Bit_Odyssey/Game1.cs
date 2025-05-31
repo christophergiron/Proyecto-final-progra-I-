@@ -25,6 +25,7 @@ namespace JumpMan
         private List<Coin> coins;
         private List<TiledMapObject> warpZones;
         private List<Rectangle> tileColliders;
+        private Goal goal; //la meta
 
         private int lives = 3;
         private bool isGameOver = false;
@@ -118,6 +119,7 @@ namespace JumpMan
 
             RegenerarObjetos();
 
+            goal = new Goal(new Vector2(250, 300));
             JumpMan = new Player(playerSpawnPoint(), () => 
             {
                 lives--;
@@ -283,6 +285,12 @@ namespace JumpMan
                 JumpMan.Update(gameTime, keyboard);
                 JumpMan.CheckCollisions(tileColliders, blocks);
                 JumpMan.CheckEnemyCollisions(enemies);
+
+                if (goal != null && goal.Contains(JumpMan.Position))
+                {
+                    isGameOver = true;
+                    Music.PlayClear();
+                }
 
                 foreach (var coin in coins)
                     coin.Update(JumpMan, gameTime);

@@ -23,6 +23,7 @@ namespace Bit_Odyssey.Scripts
         private static Song overspeed;
         private static Song underspeed;
         private static Song gameover;
+        private static Song clear;
         private static bool esperaReset = false;
         private static float resetMusic = 0f;
         
@@ -38,6 +39,7 @@ namespace Bit_Odyssey.Scripts
             fxCoin = content.Load<SoundEffect>("SoundFX/Coin");
             fxBreak = content.Load<SoundEffect>("SoundFX/Break");
             gameover = content.Load<Song>("Music/Gameover");
+            clear = content.Load<Song>("Music/Clear");
         }
 
         public static void PlayMusicOverWorld() //es muy obvio que se reproduce cada cancion o efecto correspondiente
@@ -89,6 +91,12 @@ namespace Bit_Odyssey.Scripts
         {
             MediaPlayer.Stop();
             MediaPlayer.Play(gameover);
+        }
+        public static void PlayClear()
+        {
+            MediaPlayer.IsRepeating = false;
+            MediaPlayer.Stop();
+            MediaPlayer.Play(clear);
         }
         public static void ResetMusic(float deathFXDuration)  //esto hace que se repita la musica cuando se muere
         {
