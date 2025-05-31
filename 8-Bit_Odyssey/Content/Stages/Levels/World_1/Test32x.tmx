@@ -69,7 +69,7 @@
     <property name="objectType" value="Coin"/>
    </properties>
   </object>
-  <object id="85" gid="1073741946" x="159.333" y="344" width="32" height="32" rotation="180">
+  <object id="85" gid="1073741946" x="159.333" y="344" width="32" height="32" rotation="90">
    <properties>
     <property name="spawn" type="bool" value="true"/>
    </properties>
